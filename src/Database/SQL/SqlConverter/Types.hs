@@ -1,11 +1,13 @@
-module Database.SQL.SQLSolver.Types (
+module Database.SQL.SQLConverter.Types (
     FieldType,
     FieldName,
 	RelationField,
 	Field (RegularField,Key,Relation),
 	Table (Table),
     Corresponds(Corresponds),
-    Scheme
+    Scheme,
+    RawSchemeEntry,
+    RawScheme
     
 	
 ) where

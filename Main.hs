@@ -5,9 +5,9 @@ import HFlags
 import System.Environment
 import System.Exit
 
-import Database.SQL.SQLSolver.Types
-import Database.SQL.SQLSolver.Functions
-import Database.SQL.SQLSolver.IOFunctions
+import Database.SQL.SQLConverter.Types
+import Database.SQL.SQLConverter.Functions
+import Database.SQL.SQLConverter.IOFunctions
 
 import TestStuff
 

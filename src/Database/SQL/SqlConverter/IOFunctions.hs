@@ -1,10 +1,11 @@
-module Database.SQL.SQLSolver.IOFunctions (
+module Database.SQL.SQLConverter.IOFunctions (
     tryToOpenFile,
-    parseRow
+    parseRawSchemeEntry,
+    parseRawScheme
 	
 ) where
 
-import Database.SQL.SQLSolver.Types
+import Database.SQL.SQLConverter.Types
 import Control.Exception
 import Control.Applicative
 import Data.Attoparsec.ByteString.Char8
@@ -20,8 +21,8 @@ tryToOpenFile path =
         possibleErrors :: IOException -> IO String
         possibleErrors error = return "Aaaaa!!! Please check file."
 
-parseRow :: Parser (String, String, String, String, String, String)
-parseRow = do
+parseRawSchemeEntry :: Parser RawSchemeEntry
+parseRawSchemeEntry = do
     fieldType <- many anyChar
     char ';'
     dataType <- many anyChar
@@ -35,7 +36,9 @@ parseRow = do
     linkField <- many anyChar
     return (fieldType, dataType, tableName, fieldName, linkTable, linkField)
     
-parseRawScheme :: Parser [(String, String, String, String, String, String)]
+parseRawScheme :: Parser RawScheme
+parseRawScheme = many $ parseRawSchemeEntry <* endOfLine
+    
 
 --esrnCsvImport :: IO String -> Maybe Scheme
 --esrnCsvImport path = do

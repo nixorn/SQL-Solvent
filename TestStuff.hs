@@ -4,7 +4,7 @@ module TestStuff (
 ) where
 
 
-import Database.SQL.SQLSolver.Types
+import Database.SQL.SQLConverter.Types
 
 to = [
     --личное дело
