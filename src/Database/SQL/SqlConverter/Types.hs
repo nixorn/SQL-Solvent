@@ -12,7 +12,7 @@ module Database.SQL.SQLConverter.Types (
 	
 ) where
 
-
+--
 type FieldType = String --используется только в сыром представлении. RegularField|Key|Relation
 type DataType = String --тип данных поля
 type FieldName = String 

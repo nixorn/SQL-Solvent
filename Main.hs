@@ -25,7 +25,7 @@ $(return [])
 
 
 
-main :: IO ()
+main :: IO () 
 main = do
   _ <- $initHFlags "Some programm. In this stage not worthy to document"
   putStrLn "sdf"
