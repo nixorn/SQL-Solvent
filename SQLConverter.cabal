@@ -8,25 +8,28 @@ cabal-version:       >=1.10
 
   
 library
-  hs-source-dirs: src
+
   exposed-modules:
-    Database.SQL.SQLConverter.Functions
+    Database.SQL.SQLConverter.IOFunctions
+    , Database.SQL.SQLConverter.Functions
     , Database.SQL.SQLConverter.Types
-    , Database.SQL.SQLConverter.IOFunctions
+     
 
   build-depends:
-    base >=4.7 && <4.8
+    base
     , attoparsec
     , bytestring
     , utf8-string
+    , text
+    , containers
   default-language:    Haskell2010
 
 
-executable SQLConverter
-  main-is: Main.hs            
-  other-modules:    TestStuff
-  build-depends:       
-    base >=4.7 && <4.8
-    , hflags
-    , SQLConverter
-  default-language:    Haskell2010
+--executable SQLConverter
+--  main-is: Main.hs            
+--  other-modules:    TestStuff
+--  build-depends:       
+--    base >=4.7 && <4.8
+--    , hflags
+--    , SQLConverter
+--  default-language:    Haskell2010 
