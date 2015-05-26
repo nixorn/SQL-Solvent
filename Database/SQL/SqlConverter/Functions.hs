@@ -8,21 +8,16 @@ module Database.SQL.SQLConverter.Functions (
 
 import Database.SQL.SQLConverter.Types
 
-
 import Prelude hiding (concat, takeWhile)
 import Control.Applicative ((<$>), (<|>), (<*>), (<*), (*>), many)
 import Control.Monad (void)
 import Data.Attoparsec.Text
 import qualified Data.Text as T (Text, concat, cons, append)
-import qualified Data.Map as Map  
-
-
-
+import qualified Data.Set as S  
 
 --parsers. stolen from
 ---https://github.com/robinbb/attoparsec-csv/blob/master/Text/ParseCSV.hs 
 ---------
-
 
 type CSV = [[T.Text]]
 
@@ -67,27 +62,34 @@ csvFile =
     <*> manyTill (lineEnd *> record)
                 (endOfInput <|> lineEnd *> endOfInput)
     <?> "file"
- --
+
+    
+--------------------------------------------------------------------------------    
+--мое
+atomTable :: [String] -> Table --атомарная "таблица" из одной строчки
+atomTable field  
+  | fieldType == "RegularField" = Table tableName (S.fromList [RegularField fieldType dataType])
+  | fieldType == "Key" = Table tableName (S.fromList [Key fieldType dataType ])
+  | fieldType == "Relation" = Table tableName (S.fromList [Relation fieldType dataType relationTable relationField])
+  where
+    fieldType = field !! 0
+    dataType = field !! 1
+    tableName = field !! 2
+    fieldName = field !! 3
+    relationTable = field !! 4
+    relationField = field !! 5
+    
+rollup :: Set Table -> Set Table
+rollup setTab = do
+    let tabNames = S.map tName setTab
+    --сформировать таблицы с суммой полей над таблицами с единичными полями over (partition by tabName)
+    let result = S.map 
+        (\ tabName ->  Table tabName $ S.Map tBody $ S.filter 
+            (\ curTab ->  (tName curTab) == tabName )
+            setTab) 
+        tabNames
+    
+ 
 getScheme :: CSV -> Scheme
 getScheme csv = 
-    Scheme $ foldl (\raw = Map.fromList ) $ fmap rollup csv where
-        rollup :: [String] -> Table
-        rollup field  
-          | fieldType == "RegularField" = Table tableName [RegularField fieldType dataType ]
-          | fieldType == "Key" = Table tableName [Key fieldType dataType ]
-          | fieldType == "Relation" = Table tableName [RegularField fieldType dataType ] 
-          where
-            fieldType = field !! 0
-            dataType = field !! 1
-            tableName = field !! 2
-            fieldName = field !! 3
-            relationTable = field !! 4
-            relationField = field !! 5
-              
-          
- 
-
---[["RegularField;varchar;WS_ULRIC_LOG;A_STREETTYPE;NULL;NULL"],["RegularField;datetime;WS_ULRIC_LOG;A_TIMESTAMP;NULL;NULL"],["RegularField;varchar;WS_ULRIC_LOG;GUID;NULL;NULL"],["RegularField;varchar;WS_ULRICSETTINGS;A_CODE_ORG;NULL;NULL"],["Relation;int;WS_ULRICSETTINGS;A_NAME_AMOUNT;SPR_HSC_TYPES;A_ID"],["Relation;int;WS_ULRICSETTINGS;A_RECEIPT_TYPE;SPR_RECEIPT_TYPE;A_OUID"],["RegularField;varchar;WS_ULRICSETTINGS;A_RIC_CODE;NULL;NULL"],["RegularField;varchar;WS_ULRICSETTINGS;A_USER;NULL;NULL"]]
-
-
---Scheme [Table []]
+    Scheme . S.fromList $ fmap atomTable csv 

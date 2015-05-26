@@ -22,7 +22,7 @@ getFile fp = do
     file <- readFile fp
     return $ T.pack file 
 
---eax :: String -> Int -> Vector -> String        
+        
 printScheme :: String -> IO ()
 printScheme path = do
     putStrLn ""
