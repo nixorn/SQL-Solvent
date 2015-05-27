@@ -24,8 +24,7 @@ getFile fp = do
 
         
 printScheme :: String -> IO ()
-printScheme path = do
-    putStrLn ""
+printScheme path = putStrLn ""
     {-
     file <- getFile path
     let 

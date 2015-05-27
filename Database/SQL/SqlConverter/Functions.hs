@@ -3,6 +3,7 @@ module Database.SQL.SQLConverter.Functions (
 	
     --reimport
     csvFile
+    ,getScheme
     
 ) where
 
@@ -12,7 +13,8 @@ import Prelude hiding (concat, takeWhile)
 import Control.Applicative ((<$>), (<|>), (<*>), (<*), (*>), many)
 import Control.Monad (void)
 import Data.Attoparsec.Text
-import qualified Data.Text as T (Text, concat, cons, append)
+import qualified Data.List as L
+import qualified Data.Text as T 
 import qualified Data.Set as S  
 
 --parsers. stolen from
@@ -65,31 +67,33 @@ csvFile =
 
     
 --------------------------------------------------------------------------------    
---мое
-atomTable :: [String] -> Table --атомарная "таблица" из одной строчки
+
+atomTable :: [T.Text] -> Table --атомарная "таблица" с  именем и одним полем. Фактически сейчас имеем множество полей
 atomTable field  
   | fieldType == "RegularField" = Table tableName (S.fromList [RegularField fieldType dataType])
-  | fieldType == "Key" = Table tableName (S.fromList [Key fieldType dataType ])
-  | fieldType == "Relation" = Table tableName (S.fromList [Relation fieldType dataType relationTable relationField])
+  | fieldType == "Key"          = Table tableName (S.fromList [Key fieldType dataType ])
+  | fieldType == "Relation"     = Table tableName (S.fromList [Relation fieldType dataType relationTable relationField])
   where
-    fieldType = field !! 0
-    dataType = field !! 1
-    tableName = field !! 2
-    fieldName = field !! 3
-    relationTable = field !! 4
-    relationField = field !! 5
+    fieldType       = field !! 0
+    dataType        = field !! 1
+    tableName       = field !! 2
+    fieldName       = field !! 3
+    relationTable   = field !! 4
+    relationField   = field !! 5
     
-rollup :: Set Table -> Set Table
-rollup setTab = do
-    let tabNames = S.map tName setTab
-    --сформировать таблицы с суммой полей над таблицами с единичными полями over (partition by tabName)
-    let result = S.map 
-        (\ tabName ->  Table tabName $ S.Map tBody $ S.filter 
-            (\ curTab ->  (tName curTab) == tabName )
-            setTab) 
-        tabNames
+rollup :: S.Set Table -> S.Set Table
+rollup setTab = 
+    let tabNames = S.toList $ S.map tName setTab
+        dummyTable = Table (T.pack "") (S.fromList [])
+        tablesByName :: S.Set Table -> TableName -> S.Set Table
+        tablesByName setTab tabName = S.filter (\curTable -> tName curTable == tabName) setTab
+        
+        rollupFields :: S.Set Table -> Table
+        rollupFields =  S.foldl (\ a b -> Table (tName b)  $ S.union  (tBody a) (tBody b)) dummyTable 
+    in  S.fromList $ fmap (rollupFields . tablesByName setTab) tabNames
+
     
  
 getScheme :: CSV -> Scheme
 getScheme csv = 
-    Scheme . S.fromList $ fmap atomTable csv 
+    rollup . S.fromList $ fmap atomTable csv 

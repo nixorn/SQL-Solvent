@@ -1,12 +1,13 @@
 module Database.SQL.SQLConverter.Types (
     FieldType,
     FieldName,
+    TableName,
 	RelationField,
 	Field (RegularField,Key,Relation),
 	Table (Table),
     Corresponds(Corresponds),
-    Scheme
-    
+    Scheme,
+    TableOperations (tName,tBody)
 	
 ) where
 import qualified Data.Text as T 
@@ -22,25 +23,27 @@ type RelationField = T.Text --куда поле указывает
 
 data Field = RegularField FieldName DataType 
 	| Key FieldName DataType 
-	| Relation FieldName DataType TableName RelationField deriving Eq
+	| Relation FieldName DataType TableName RelationField 
+        deriving (Eq,Ord)
 
-data Table = Table TableName (S.Set Field)
+data Table = Table TableName (S.Set Field) deriving (Ord,Eq)
 
 
-class TableOperations Table where
-    (+++) :: Table -> Table -> Table --суммировать поля
-    tName :: Table -> TableName
-    tBody :: Table -> S.Set Field
+class TableOperations a where
+    (+++) :: a -> a -> a --суммировать поля
+    tName :: a -> TableName
+    tBody :: a -> S.Set Field
 
 instance TableOperations Table where
     tName (Table name _) = name
     tBody (Table _ body) = body
     (+++) a  b  
         | aName /= bName = a --если имена таблиц разные то возвращаем первую таблицу
-        | aName == bName = Table aName $ getTableBody a ++ getTableBody b --если одинаковые - то новую с суммой полей
+        | aName == bName = Table aName $ S.union (tBody a)  (tBody b) --если одинаковые - то новую с суммой полей
         where
             aName = tName a
             bName = tName b
+ 
     
 
 type Scheme = S.Set Table --типа база
