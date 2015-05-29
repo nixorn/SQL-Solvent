@@ -15,21 +15,30 @@ import Database.SQL.SQLConverter.Types
 import Control.Exception
 
 import Data.Attoparsec.Text
-import qualified Data.Text as T (Text, pack)
+import qualified Data.Set as S
+import qualified Data.Text as T 
 
-getFile :: String -> IO T.Text
+getFile :: FilePath -> IO T.Text
 getFile fp = do
     file <- readFile fp
     return $ T.pack file 
 
         
 printScheme :: String -> IO ()
-printScheme path = putStrLn ""
-    {-
+printScheme path = do
+    
     file <- getFile path
-    let 
-        rawScheme :: B.ByteString -> RawScheme
-        rawScheme f = case (parseOnly parseRawScheme f) of
-            Right  rs ->  rs
-            Left  s -> RawScheme [RawSchemeEntry ("error","error","error","error","error","error")]
-    print $ rawScheme file-}
+    let raw = case (parseOnly csvFile file) of
+                Right a -> a
+                Left _ -> [[]]
+      
+    print $ getScheme raw
+
+redirectScheme :: String -> IO Scheme
+redirectScheme path = do
+    file <- getFile path
+    let raw = case (parseOnly csvFile file) of
+                Right a -> a
+                Left _ -> [[]]
+      
+    return $ getScheme raw

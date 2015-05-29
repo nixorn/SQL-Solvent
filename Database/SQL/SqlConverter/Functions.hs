@@ -16,6 +16,7 @@ import Data.Attoparsec.Text
 import qualified Data.List as L
 import qualified Data.Text as T 
 import qualified Data.Set as S  
+import Data.Graph.Inductive as G
 
 --parsers. stolen from
 ---https://github.com/robinbb/attoparsec-csv/blob/master/Text/ParseCSV.hs 
@@ -67,12 +68,13 @@ csvFile =
 
     
 --------------------------------------------------------------------------------    
-
+--получение схемы
 atomTable :: [T.Text] -> Table --атомарная "таблица" с  именем и одним полем. Фактически сейчас имеем множество полей
 atomTable field  
-  | fieldType == "RegularField" = Table tableName (S.fromList [RegularField fieldType dataType])
-  | fieldType == "Key"          = Table tableName (S.fromList [Key fieldType dataType ])
-  | fieldType == "Relation"     = Table tableName (S.fromList [Relation fieldType dataType relationTable relationField])
+  | fieldType == "RegularField" = Table tableName (S.fromList [RegularField fieldName dataType])
+  | fieldType == "Key"          = Table tableName (S.fromList [Key fieldName dataType ])
+  | fieldType == "Relation"     = Table tableName (S.fromList [Relation fieldName dataType relationTable relationField])
+  | otherwise = Table (T.pack "") (S.fromList [])
   where
     fieldType       = field !! 0
     dataType        = field !! 1
@@ -81,7 +83,7 @@ atomTable field
     relationTable   = field !! 4
     relationField   = field !! 5
     
-rollup :: S.Set Table -> S.Set Table
+rollup :: S.Set Table -> S.Set Table --свертка атомарных таблиц в одну
 rollup setTab = 
     let tabNames = S.toList $ S.map tName setTab
         dummyTable = Table (T.pack "") (S.fromList [])
@@ -97,3 +99,35 @@ rollup setTab =
 getScheme :: CSV -> Scheme
 getScheme csv = 
     rollup . S.fromList $ fmap atomTable csv 
+
+--------------------------------------------------------------------------------    
+--графы
+
+buildTableGraph :: G.Graph gr => Scheme -> gr
+buildTableGraph scheme = do
+    let nodes = zip [1..(S.size scheme)] (S.toList scheme)
+        
+        isTargetNode :: TableName -> (Int, Table) -> Bool
+        isTargetNode tn (_, targt) = tn == tName targt
+        
+        searchTargetNode :: TableName -> [(Int, Table)] -> Int
+        searchTargetNode tname nodes = fst $ head $ filter (isTargetNode  tname) nodes 
+        
+        getEdge :: [(Int, Table)] -> (Int, Table) -> Field -> LEdge 
+        getEdge nodes (node, tbl1) (Relation  fnm dt tblnm2 fnm2) = (node, --исходная нода
+            searchTargetNode nodes tblnm2, --целевая нода
+            (((tName tbl1), fnm), (tblnm2, fnm2)) --((ссылающаяся таблица, ссылающееся поле),(целевая таблица, целевое поле))
+        
+        getNodeEdges  :: [LNode] -> LNode -> [LEdge]
+        getNodeEdges nodes (node, tbl) = S.toList $ S.map (getEdge nodes (node, tbl)) $ tBody tbl
+        
+        getAllEdges :: [LNode] -> [LEdge]
+        getAllEdges nodes = concat $ fmap (getNodeEdges nodes)  nodes
+        
+    in mkGraph nodes $ getAllEdges nodes
+            
+
+            
+            
+         
+        

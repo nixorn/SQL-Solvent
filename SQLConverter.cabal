@@ -22,6 +22,7 @@ library
     , utf8-string
     , text
     , containers
+    , fgl
   default-language:    Haskell2010
 
 
