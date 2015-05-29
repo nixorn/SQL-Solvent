@@ -2,6 +2,7 @@
 module Database.SQL.SQLConverter.IOFunctions (
     getFile,
     printScheme,
+    redirectScheme,
     --parser
     csvFile,
     --attoparsec

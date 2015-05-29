@@ -6,7 +6,8 @@ module Database.SQL.SQLConverter.Types (
 	Field (Regular, Key, Relation),
 	Table (Table),
     Scheme,
-    TableOperations (tName,tBody)
+    TableOperations (tName,tBody),
+    RelationInGraph
 	
 ) where
 import qualified Data.Text as T 
@@ -43,9 +44,7 @@ instance TableOperations Table where
 
 type Scheme = S.Set Table --типа база
 
-
-
-
+type RelationInGraph = ((TableName, FieldName),(TableName, FieldName))
 
 
 

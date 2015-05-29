@@ -1,9 +1,10 @@
 {-# Language OverloadedStrings #-}
 module Database.SQL.SQLConverter.Functions (
 	
-    --reimport
+ 
     csvFile
     ,getScheme
+    ,buildTableGraph
     
 ) where
 
@@ -12,6 +13,7 @@ import Database.SQL.SQLConverter.Types
 import Prelude hiding (concat, takeWhile)
 import Control.Applicative ((<$>), (<|>), (<*>), (<*), (*>), many)
 import Control.Monad (void)
+import Data.Maybe
 import Data.Attoparsec.Text
 import qualified Data.List as L
 import qualified Data.Text as T 
@@ -71,7 +73,7 @@ csvFile =
 --получение схемы
 atomTable :: [T.Text] -> Table --атомарная "таблица" с  именем и одним полем. Фактически сейчас имеем множество полей
 atomTable field  
-  | fieldType == "RegularField" = Table tableName (S.fromList [RegularField fieldName dataType])
+  | fieldType == "RegularField" = Table tableName (S.fromList [Regular fieldName dataType])
   | fieldType == "Key"          = Table tableName (S.fromList [Key fieldName dataType ])
   | fieldType == "Relation"     = Table tableName (S.fromList [Relation fieldName dataType relationTable relationField])
   | otherwise = Table (T.pack "") (S.fromList [])
@@ -103,28 +105,40 @@ getScheme csv =
 --------------------------------------------------------------------------------    
 --графы
 
-buildTableGraph :: G.Graph gr => Scheme -> gr
-buildTableGraph scheme = do
-    let nodes = zip [1..(S.size scheme)] (S.toList scheme)
+--пустая таблица, чтобы собирать все битые ссылки, чтобы не падали чистые функции, ребра не уходили в пустоту и все такое
+
+dummyNode = [(0, Table (T.pack "NULL") S.empty)]
+
+
+buildTableGraph ::  Scheme -> Gr  Table RelationInGraph
+buildTableGraph scheme =
+    let nodes = (zip [1..(S.size scheme)] (S.toList scheme)) ++ dummyNode
         
-        isTargetNode :: TableName -> (Int, Table) -> Bool
+        isTargetNode :: TableName -> LNode Table -> Bool
         isTargetNode tn (_, targt) = tn == tName targt
         
-        searchTargetNode :: TableName -> [(Int, Table)] -> Int
+               
+        searchTargetNode :: TableName -> [LNode Table] -> Int
         searchTargetNode tname nodes = fst $ head $ filter (isTargetNode  tname) nodes 
+            ++ dummyNode 
+
+
+ 
         
-        getEdge :: [(Int, Table)] -> (Int, Table) -> Field -> LEdge 
-        getEdge nodes (node, tbl1) (Relation  fnm dt tblnm2 fnm2) = (node, --исходная нода
-            searchTargetNode nodes tblnm2, --целевая нода
-            (((tName tbl1), fnm), (tblnm2, fnm2)) --((ссылающаяся таблица, ссылающееся поле),(целевая таблица, целевое поле))
+        getEdge :: [LNode Table] -> LNode Table -> Field -> Maybe (LEdge RelationInGraph)
+        getEdge _ _ (Key      _ _) = Nothing
+        getEdge _ _ (Regular  _ _) = Nothing
+        getEdge nodes (node, tbl1) (Relation  fnm dt tblnm2 fnm2) = Just $ (node, 
+            searchTargetNode tblnm2 nodes, --целевая нода
+            (((tName tbl1), fnm), (tblnm2, fnm2))) --((ссылающаяся таблица, ссылающееся поле),(целевая таблица, целевое поле))
+       
+        getNodeEdges  :: [LNode Table] -> LNode Table -> [LEdge RelationInGraph]
+        getNodeEdges nodes (node, tbl) = catMaybes $ S.toList $ S.map (getEdge nodes (node, tbl)) $ tBody tbl
         
-        getNodeEdges  :: [LNode] -> LNode -> [LEdge]
-        getNodeEdges nodes (node, tbl) = S.toList $ S.map (getEdge nodes (node, tbl)) $ tBody tbl
+        getAllEdges :: [LNode Table] -> [LEdge RelationInGraph]
+        getAllEdges nodes = L.concat $ fmap (getNodeEdges nodes)  nodes
         
-        getAllEdges :: [LNode] -> [LEdge]
-        getAllEdges nodes = concat $ fmap (getNodeEdges nodes)  nodes
-        
-    in mkGraph nodes $ getAllEdges nodes
+    in  mkGraph nodes $ getAllEdges nodes
             
 
             
