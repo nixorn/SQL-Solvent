@@ -112,7 +112,7 @@ dummyNode = [(0, Table (T.pack "NULL") S.empty)]
 
 buildTableGraph ::  Scheme -> Gr  Table RelationInGraph
 buildTableGraph scheme =
-    let nodes = (zip [1..(S.size scheme)] (S.toList scheme)) ++ dummyNode
+    let nodes = zip [1..(S.size scheme)] (S.toList scheme) ++ dummyNode
         
         isTargetNode :: TableName -> LNode Table -> Bool
         isTargetNode tn (_, targt) = tn == tName targt
@@ -128,9 +128,9 @@ buildTableGraph scheme =
         getEdge :: [LNode Table] -> LNode Table -> Field -> Maybe (LEdge RelationInGraph)
         getEdge _ _ (Key      _ _) = Nothing
         getEdge _ _ (Regular  _ _) = Nothing
-        getEdge nodes (node, tbl1) (Relation  fnm dt tblnm2 fnm2) = Just $ (node, 
+        getEdge nodes (node, tbl1) (Relation  fnm dt tblnm2 fnm2) = Just  (node, 
             searchTargetNode tblnm2 nodes, --целевая нода
-            (((tName tbl1), fnm), (tblnm2, fnm2))) --((ссылающаяся таблица, ссылающееся поле),(целевая таблица, целевое поле))
+            ((tName tbl1, fnm), (tblnm2, fnm2))) --((ссылающаяся таблица, ссылающееся поле),(целевая таблица, целевое поле))
        
         getNodeEdges  :: [LNode Table] -> LNode Table -> [LEdge RelationInGraph]
         getNodeEdges nodes (node, tbl) = catMaybes $ S.toList $ S.map (getEdge nodes (node, tbl)) $ tBody tbl
