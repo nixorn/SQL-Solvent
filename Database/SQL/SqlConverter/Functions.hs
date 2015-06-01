@@ -19,6 +19,7 @@ import qualified Data.List as L
 import qualified Data.Text as T 
 import qualified Data.Set as S  
 import Data.Graph.Inductive as G
+import Data.Graph.Inductive.Query.BFS(lbft, bft)
 
 
 --parsers. stolen from
@@ -74,7 +75,7 @@ csvFile =
 --получение схемы
 atomTable :: [T.Text] -> Table --атомарная "таблица" с  именем и одним полем. Фактически сейчас имеем множество полей
 atomTable field  
-  | fieldType == "RegularField" = Table tableName (S.fromList [Regular fieldName dataType])
+  | fieldType == "Regular" = Table tableName (S.fromList [Regular fieldName dataType])
   | fieldType == "Key"          = Table tableName (S.fromList [Key fieldName dataType ])
   | fieldType == "Relation"     = Table tableName (S.fromList [Relation fieldName dataType relationTable relationField])
   | otherwise = Table (T.pack "") (S.fromList [])
@@ -126,9 +127,8 @@ buildTableGraph scheme =
         searchTargetNode :: TableName -> [LNode Table] -> Int
         searchTargetNode tname nodes = fst $ head $ filter (isTargetNode  tname) nodes 
             ++ dummyNode 
-
-
- 
+            
+        get
         
         getEdge :: [LNode Table] -> LNode Table -> Field -> Maybe (LEdge RelationInGraph)
         getEdge _ _ (Key      _ _) = Nothing
@@ -143,9 +143,11 @@ buildTableGraph scheme =
         getAllEdges :: [LNode Table] -> [LEdge RelationInGraph]
         getAllEdges nodes = L.concat $ fmap (getNodeEdges nodes)  nodes
         
+        
     in  mkGraph nodes $ getAllEdges nodes
 
---
+
+    
 nodeByTableName :: Gr Table RelationInGraph -> TableName -> Int
 nodeByTableName graph tname =
     let labelHasName :: TableName -> LNode Table -> Bool
@@ -153,8 +155,12 @@ nodeByTableName graph tname =
     in case (L.find (labelHasName tname)  $ labNodes graph) of
         Just (a,_) -> a
         Nothing    -> 0
-         
-         
-
-            
+      
+   {-
+pathesBetween :: TableName -> TableName -> Gr Table RelationInGraph -> [[RelationInGraph]]
+pathesBetween  t1 t2 gr = do
+            let t1node = nodeByTableName t1
+                t2node = nodeByTableName t2
+                edgs   = labEdges gr-}
+                           
           
