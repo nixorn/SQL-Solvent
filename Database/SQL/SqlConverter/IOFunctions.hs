@@ -8,16 +8,23 @@ module Database.SQL.SQLConverter.IOFunctions (
     --attoparsec
     parse, 
     parseOnly
+    
+
     	
 ) where
 
 import Database.SQL.SQLConverter.Functions
 import Database.SQL.SQLConverter.Types
 import Control.Exception
+import Data.Graph.Inductive.Graph --для реимпорта в консоль
 
 import Data.Attoparsec.Text
 import qualified Data.Set as S
 import qualified Data.Text as T 
+
+
+
+
 
 getFile :: FilePath -> IO T.Text
 getFile fp = do
@@ -27,7 +34,6 @@ getFile fp = do
         
 printScheme :: String -> IO ()
 printScheme path = do
-    
     file <- getFile path
     let raw = case (parseOnly csvFile file) of
                 Right a -> a

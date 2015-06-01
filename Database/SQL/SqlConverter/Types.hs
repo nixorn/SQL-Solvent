@@ -7,7 +7,7 @@ module Database.SQL.SQLConverter.Types (
 	Table (Table),
     Scheme,
     TableOperations (tName,tBody),
-    RelationInGraph
+    RelationInGraph (RelationInGraph)
 	
 ) where
 import qualified Data.Text as T 
@@ -44,7 +44,19 @@ instance TableOperations Table where
 
 type Scheme = S.Set Table --типа база
 
-type RelationInGraph = ((TableName, FieldName),(TableName, FieldName))
+--сделано чтобы присвоить вес ребрам. вес ребра - еденица.
+data RelationInGraph = RelationInGraph ((TableName, FieldName),(TableName, FieldName)) deriving (Eq, Ord, Show)
+
+instance Num RelationInGraph where
+    (+) a b = 2
+    (*) a b = 1
+    abs a = 1
+    signum a = 1
+    fromInteger a = RelationInGraph ((T.pack "",T.pack ""),(T.pack "",T.pack ""))
+    negate a = 1
+instance Real RelationInGraph where
+    toRational a =  1
+    
 
 
 

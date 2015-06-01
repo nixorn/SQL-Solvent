@@ -5,7 +5,7 @@ module Database.SQL.SQLConverter.Functions (
     csvFile
     ,getScheme
     ,buildTableGraph
-    
+    ,nodeByTableName
 ) where
 
 import Database.SQL.SQLConverter.Types
@@ -19,6 +19,7 @@ import qualified Data.List as L
 import qualified Data.Text as T 
 import qualified Data.Set as S  
 import Data.Graph.Inductive as G
+
 
 --parsers. stolen from
 ---https://github.com/robinbb/attoparsec-csv/blob/master/Text/ParseCSV.hs 
@@ -105,14 +106,18 @@ getScheme csv =
 --------------------------------------------------------------------------------    
 --графы
 
---пустая таблица, чтобы собирать все битые ссылки, чтобы не падали чистые функции, ребра не уходили в пустоту и все такое
-
-dummyNode = [(0, Table (T.pack "NULL") S.empty)]
 
 
-buildTableGraph ::  Scheme -> Gr  Table RelationInGraph
+dummyNode = [(0, Table (T.pack "NULL") S.empty)]--пустая таблица, чтобы собирать все битые ссылки, чтобы не падали чистые функции, ребра не уходили в пустоту и все такое
+            
+
+
+        
+
+        
+buildTableGraph ::  Scheme -> Gr Table RelationInGraph
 buildTableGraph scheme =
-    let nodes = zip [1..(S.size scheme)] (S.toList scheme) ++ dummyNode
+    let nodes = zip [1..(S.size scheme)] (S.toList scheme) ++ dummyNode --таблицы, разобранные в ноды
         
         isTargetNode :: TableName -> LNode Table -> Bool
         isTargetNode tn (_, targt) = tn == tName targt
@@ -130,7 +135,7 @@ buildTableGraph scheme =
         getEdge _ _ (Regular  _ _) = Nothing
         getEdge nodes (node, tbl1) (Relation  fnm dt tblnm2 fnm2) = Just  (node, 
             searchTargetNode tblnm2 nodes, --целевая нода
-            ((tName tbl1, fnm), (tblnm2, fnm2))) --((ссылающаяся таблица, ссылающееся поле),(целевая таблица, целевое поле))
+            RelationInGraph ((tName tbl1, fnm), (tblnm2, fnm2))) --((ссылающаяся таблица, ссылающееся поле),(целевая таблица, целевое поле))
        
         getNodeEdges  :: [LNode Table] -> LNode Table -> [LEdge RelationInGraph]
         getNodeEdges nodes (node, tbl) = catMaybes $ S.toList $ S.map (getEdge nodes (node, tbl)) $ tBody tbl
@@ -139,9 +144,17 @@ buildTableGraph scheme =
         getAllEdges nodes = L.concat $ fmap (getNodeEdges nodes)  nodes
         
     in  mkGraph nodes $ getAllEdges nodes
-            
+
+--
+nodeByTableName :: Gr Table RelationInGraph -> TableName -> Int
+nodeByTableName graph tname =
+    let labelHasName :: TableName -> LNode Table -> Bool
+        labelHasName tname (_, table) = tName table == tname
+    in case (L.find (labelHasName tname)  $ labNodes graph) of
+        Just (a,_) -> a
+        Nothing    -> 0
+         
+         
 
             
-            
-         
-        
+          
