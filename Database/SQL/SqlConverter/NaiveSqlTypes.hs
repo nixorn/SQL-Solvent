@@ -2,42 +2,47 @@ module Database.SQL.SQLConverter.NaiveSqlTypes (
 
 	
 ) where
+import Database.SQL.SQLConverter.Types
 import Data.Text as T
 --mssql
 
 --table, subquery
-data Source     = Source T.Text
 
-data SimpleField     = SimpleField  T.Text
-
---@a
-data Variable   = 
 
 
 
 data ClauseOp = Much    | -- >
                 Less    | -- <
                 Equ     | -- =
-                NoEqual | -- !=
-                MEqual  | -- >=
-                LEqual    -- <=
+                NoEqu   | -- !=
+                MEqu    | -- >=
+                LEqu      -- <=
 
-data ClauseLog = And |
-                 Or 
-                 
-            
-            
+
+
 --like t1.c1 = t2.c2   
-data Clause     = Clause ((Source, SimpleField), ClauseOp, (Source, SimpleField)) |
-                  Clause ((Source, SimpleField), ClauseOp, (Source, SimpleField)) ClauseLog 
+data Clause     = Clause ((TableName, FieldName), ClauseOp, (TableName, FieldName)) 
 
-data Where      = Where     [Clause]
-data LeftJoin   = LeftJoin  Source [Clause]
-data InnerJoin  = InnerJoin Source [Clause]
 
-data Select     = Select Source
 
-data Insert     =
-data Update     =
-data Create     =
-data Drop       =
+data Where      = Where      [Clause]
+data From       = From       TableName
+data Join       = LeftJoin | InnerJoin
+data LeftJoin   = LeftJoin   TableName [Clause]
+data InnerJoin  = InnerJoin  TableName [Clause]
+
+data Select     = Select [(TableName, FieldName)] From  [Join] Where
+data InsertInto = InsertInto TableName [FieldName] Select
+data Update     = Update TableName [FieldName] 
+
+instance Show Select where
+    show (Select fields from joins whr ) = 
+        let showList a b = show a ++ show b
+        in "SELECT " ++
+            foldl showList fields ++
+            show from ++
+            foldl showList joins ++
+            show whr
+
+--data Create     = 
+--data Drop       = 

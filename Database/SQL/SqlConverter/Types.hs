@@ -14,7 +14,7 @@ import qualified Data.Text as T
 import qualified Data.Set as S
 
 
-type FieldType = T.Text --используется только в сыром представлении. RegularField|Key|Relation
+type FieldType = T.Text --RegularField|Key|Relation
 type DataType = T.Text --тип данных поля
 type FieldName = T.Text 
 type TableName = T.Text 
