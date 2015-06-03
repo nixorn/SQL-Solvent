@@ -128,7 +128,7 @@ buildTableGraph scheme =
         searchTargetNode tname nodes = fst $ head $ filter (isTargetNode  tname) nodes 
             ++ dummyNode 
             
-        get
+        
         
         getEdge :: [LNode Table] -> LNode Table -> Field -> Maybe (LEdge RelationInGraph)
         getEdge _ _ (Key      _ _) = Nothing
@@ -155,12 +155,9 @@ nodeByTableName graph tname =
     in case (L.find (labelHasName tname)  $ labNodes graph) of
         Just (a,_) -> a
         Nothing    -> 0
-      
-   {-
-pathesBetween :: TableName -> TableName -> Gr Table RelationInGraph -> [[RelationInGraph]]
-pathesBetween  t1 t2 gr = do
-            let t1node = nodeByTableName t1
-                t2node = nodeByTableName t2
-                edgs   = labEdges gr-}
-                           
-          
+
+
+        
+
+        
+        
