@@ -13,6 +13,7 @@ library
     Database.SQL.SQLConverter.IOFunctions
     , Database.SQL.SQLConverter.Functions
     , Database.SQL.SQLConverter.Types
+    , Database.SQL.SQLConverter.NaiveSqlTypes
      
 
   build-depends:
