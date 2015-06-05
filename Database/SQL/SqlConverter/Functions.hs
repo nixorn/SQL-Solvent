@@ -9,6 +9,7 @@ module Database.SQL.SQLConverter.Functions (
 ) where
 
 import Database.SQL.SQLConverter.Types
+import Database.SQL.SQLConverter.NaiveSqlTypes
 
 import Prelude hiding (concat, takeWhile)
 import Control.Applicative ((<$>), (<|>), (<*>), (<*), (*>), many)
@@ -127,9 +128,7 @@ buildTableGraph scheme =
         searchTargetNode :: TableName -> [LNode Table] -> Int
         searchTargetNode tname nodes = fst $ head $ filter (isTargetNode  tname) nodes 
             ++ dummyNode 
-            
-        
-        
+
         getEdge :: [LNode Table] -> LNode Table -> Field -> Maybe (LEdge RelationInGraph)
         getEdge _ _ (Key      _ _) = Nothing
         getEdge _ _ (Regular  _ _) = Nothing
@@ -156,8 +155,16 @@ nodeByTableName graph tname =
         Just (a,_) -> a
         Nothing    -> 0
 
-
+--генерация кода
+--построить джойны по полям, которые нужно найти, минуя ненужные узлы
+{-
+subPath :: [Table] -> [Table] -> Gr Table RelationInGraph -> Select
+subPath l d graph -> do
+    let leafs = fmap (nodeByTableName graph) l
+        deprecates = fmap (nodeByTableName graph) d
+        bft1 a b = bft b a
+        validPath
+        --множество узлов, в которых пролегает разрешение путей. интересуют только пути, которые заканчиваются на других  листьях
+        area =  filter validPath $ fmap (bft1 graph) leafs
         
-
-        
-        
+    in -}

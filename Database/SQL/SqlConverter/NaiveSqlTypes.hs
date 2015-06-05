@@ -1,8 +1,17 @@
 {- Цель - сделать генерацию минимального подмножества sql, через которое можно выразить все операции-}
 
 module Database.SQL.SQLConverter.NaiveSqlTypes (
+        
+    Ariphm(Plus, Minus, Multi, Div)     
+    ,ClauseOp(Much, Less, Equ, NoEqu,MEqu, LEqu)
+    ,Logic(And, Or)
+    ,Clause(Clause) 
+    ,Where      (Where)
+    ,From       (From)
+    ,Join       (LeftJoin, InnerJoin)
+    ,SelectList (SelectList)
+    ,Select     (Select)
 
-	
 ) where
 import Database.SQL.SQLConverter.Types
 import Data.Text as T
@@ -75,16 +84,6 @@ instance Show Select where
             (show from) ++
             (L.concat $ fmap show joins) ++
             (show whr)
-
-
-
-
-
-
-        
-    
-
-
 
 --data InsertInto = InsertInto TableName [FieldName] Select
 --data Update     = Update TableName [FieldName] 
