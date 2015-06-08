@@ -30,6 +30,7 @@ data Field = Regular FieldName DataType
 data Table = Table TableName (S.Set Field) deriving (Ord,Eq,Show)
 
 
+
 class TableOperations a where
     tName :: a -> TableName
     tBody :: a -> S.Set Field

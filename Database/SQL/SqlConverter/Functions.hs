@@ -6,6 +6,7 @@ module Database.SQL.SQLConverter.Functions (
     ,getScheme
     ,buildTableGraph
     ,nodeByTableName
+    ,subPath
 ) where
 
 import Database.SQL.SQLConverter.Types
@@ -157,14 +158,16 @@ nodeByTableName graph tname =
 
 --генерация кода
 --построить джойны по полям, которые нужно найти, минуя ненужные узлы
-{-
-subPath :: [Table] -> [Table] -> Gr Table RelationInGraph -> Select
-subPath l d graph -> do
+
+subPath :: [TableName] -> [TableName] -> Gr Table RelationInGraph -> [[Node]]--Select
+subPath l d graph = 
     let leafs = fmap (nodeByTableName graph) l
         deprecates = fmap (nodeByTableName graph) d
         bft1 a b = bft b a
-        validPath
+              
         --множество узлов, в которых пролегает разрешение путей. интересуют только пути, которые заканчиваются на других  листьях
-        area =  filter validPath $ fmap (bft1 graph) leafs
-        
-    in -}
+        validPathes :: Gr Table RelationInGraph -> [Node] -> [[[Node]]] -> [[Node]]
+        validPathes graph leafs pathess = fmap (\pathes -> S.toList $ S.fromList $ L.concat $ 
+                                       filter ((\path -> elem (head path)) leafs) pathes) pathess
+       
+    in  validPathes graph leafs $ fmap (bft1 graph) leafs

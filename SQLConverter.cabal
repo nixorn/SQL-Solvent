@@ -24,7 +24,7 @@ library
     , text
     , containers
     , fgl
-    , fgl-visualize
+    --, fgl-visualize
 
   default-language:    Haskell2010
 
