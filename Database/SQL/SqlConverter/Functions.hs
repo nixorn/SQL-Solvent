@@ -6,7 +6,7 @@ module Database.SQL.SQLConverter.Functions (
     ,getScheme
     ,buildTableGraph
     ,nodeByTableName
-    ,subPath
+    ,area
 ) where
 
 import Database.SQL.SQLConverter.Types
@@ -124,8 +124,7 @@ buildTableGraph scheme =
         
         isTargetNode :: TableName -> LNode Table -> Bool
         isTargetNode tn (_, targt) = tn == tName targt
-        
-               
+                       
         searchTargetNode :: TableName -> [LNode Table] -> Int
         searchTargetNode tname nodes = fst $ head $ filter (isTargetNode  tname) nodes 
             ++ dummyNode 
@@ -143,7 +142,6 @@ buildTableGraph scheme =
         getAllEdges :: [LNode Table] -> [LEdge RelationInGraph]
         getAllEdges nodes = L.concat $ fmap (getNodeEdges nodes)  nodes
         
-        
     in  mkGraph nodes $ getAllEdges nodes
 
 
@@ -159,15 +157,15 @@ nodeByTableName graph tname =
 --генерация кода
 --построить джойны по полям, которые нужно найти, минуя ненужные узлы
 
-subPath :: [TableName] -> [TableName] -> Gr Table RelationInGraph -> [[Node]]--Select
-subPath l d graph = 
+
+area :: [TableName] -> [TableName] -> Gr Table RelationInGraph -> [Node]
+area l d graph = 
     let leafs = fmap (nodeByTableName graph) l
         deprecates = fmap (nodeByTableName graph) d
         bft1 a b = bft b a
-              
-        --множество узлов, в которых пролегает разрешение путей. интересуют только пути, которые заканчиваются на других  листьях
-        validPathes :: Gr Table RelationInGraph -> [Node] -> [[[Node]]] -> [[Node]]
-        validPathes graph leafs pathess = fmap (\pathes -> S.toList $ S.fromList $ L.concat $ 
+        --множество узлов, в которых пролегает разрешение путей. интересуют только пути, которые заканчиваются на других  leaf подграфа
+        validPathes :: Gr Table RelationInGraph -> [Node] -> [[[Node]]] -> [Node]
+        validPathes graph leafs pathess = S.toList . S.fromList . L.concat . L.concat $ fmap (\pathes ->  
                                        filter ((\path -> elem (head path)) leafs) pathes) pathess
        
     in  validPathes graph leafs $ fmap (bft1 graph) leafs
