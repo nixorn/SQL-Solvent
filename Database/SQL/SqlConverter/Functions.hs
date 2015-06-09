@@ -168,10 +168,15 @@ nodesArea l d graph =
         deprecates = fmap (nodeByTableName graph) d
         bft1 a b = bft b a
         validPathes :: Gr Table RelationInGraph -> [Node] -> [[[Node]]] -> [Node]
-        validPathes graph leafs pathess = S.toList . S.fromList . L.concat . L.concat $ fmap (\pathes ->  
+        validPathes graph leafs pathess = S.toList 
+            . S.fromList 
+            . L.concat 
+            . L.concat $ fmap (\pathes ->  
                                        filter ((\path -> elem (head path)) leafs) pathes) pathess
        
-    in  filter (\node -> not $ node `elem` deprecates) $ validPathes graph leafs $ fmap (bft1 graph) leafs
+    in  filter (\node -> not $ node `elem` deprecates) 
+        $ validPathes graph leafs 
+        $ fmap (bft1 graph) leafs
     
 --множество связей между этими узлами, которые заканчиваются в том же множестве узлов
 
