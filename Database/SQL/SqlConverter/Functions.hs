@@ -6,7 +6,8 @@ module Database.SQL.SQLConverter.Functions (
     ,getScheme
     ,buildTableGraph
     ,nodeByTableName
-    ,area
+    ,nodesArea
+    ,edgesArea
 ) where
 
 import Database.SQL.SQLConverter.Types
@@ -108,7 +109,10 @@ getScheme csv =
 
 --------------------------------------------------------------------------------    
 --графы
-
+--схема базы данных = граф
+--таблица = нода Node или LNode, что эквивалентно
+--реляционная связь = ребро - Edge или LEdge, что эквивалентно
+--путь связей = путь графа
 
 
 dummyNode = [(0, Table (T.pack "NULL") S.empty)]--пустая таблица, чтобы собирать все битые ссылки, чтобы не падали чистые функции, ребра не уходили в пустоту и все такое
@@ -154,18 +158,30 @@ nodeByTableName graph tname =
         Just (a,_) -> a
         Nothing    -> 0
 
---генерация кода
---построить джойны по полям, которые нужно найти, минуя ненужные узлы
+--Вычленение интересующего множества связей-таблиц из схемы
 
-
-area :: [TableName] -> [TableName] -> Gr Table RelationInGraph -> [Node]
-area l d graph = 
+--множество таблиц, в которых пролегает разрешение связей. интересуют только пути связей, которые заканчиваются на других  таблицах подграфа
+--так же передаются таблицы, которые не должны быть в схеме
+nodesArea :: [TableName] -> [TableName] -> Gr Table RelationInGraph -> [Node]
+nodesArea l d graph = 
     let leafs = fmap (nodeByTableName graph) l
         deprecates = fmap (nodeByTableName graph) d
         bft1 a b = bft b a
-        --множество узлов, в которых пролегает разрешение путей. интересуют только пути, которые заканчиваются на других  leaf подграфа
         validPathes :: Gr Table RelationInGraph -> [Node] -> [[[Node]]] -> [Node]
         validPathes graph leafs pathess = S.toList . S.fromList . L.concat . L.concat $ fmap (\pathes ->  
                                        filter ((\path -> elem (head path)) leafs) pathes) pathess
        
-    in  validPathes graph leafs $ fmap (bft1 graph) leafs
+    in  filter (\node -> not $ node `elem` deprecates) $ validPathes graph leafs $ fmap (bft1 graph) leafs
+    
+--множество связей между этими узлами, которые заканчиваются в том же множестве узлов
+
+edgesArea :: Gr Table RelationInGraph -> [Node] -> [Edge]
+edgesArea graph nodes = 
+    let 
+        filterEdges :: Gr Table RelationInGraph -> [Node] -> LEdge a -> Bool
+        filterEdges graph nodes (n1, n2, _) = and [n1 `elem` nodes, n1 `elem` nodes]
+        
+        mapEdges :: LEdge a -> Edge
+        mapEdges (n1, n2, _) = (n1,n2) 
+    in fmap mapEdges $ filter (filterEdges graph nodes ) $ S.toList . S.fromList . L.concat $ fmap (inn graph) nodes ++ fmap (out graph) nodes
+    
