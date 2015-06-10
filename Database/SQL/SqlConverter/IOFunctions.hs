@@ -3,6 +3,8 @@ module Database.SQL.SQLConverter.IOFunctions (
 
     getSchemeGraph
     ,tnames
+    ,redirectScheme
+    
 ) where
 
 import Database.SQL.SQLConverter.Functions
@@ -30,6 +32,8 @@ tnames :: Gr Table RelationInGraph -> [Node] -> [TableName]
 tnames graph nodes  = fmap (\node -> case (lab graph node) of
                                             Just a -> tName a 
                                             Nothing -> T.pack "") nodes
+                                            
+
     
 --IO
 

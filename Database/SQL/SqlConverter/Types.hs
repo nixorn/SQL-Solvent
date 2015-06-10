@@ -7,7 +7,8 @@ module Database.SQL.SQLConverter.Types (
 	Table (Table),
     Scheme,
     TableOperations (tName,tBody),
-    RelationInGraph (RelationInGraph)
+    RelationInGraph (RelationInGraph),
+    dummyTable
 	
 ) where
 import qualified Data.Text as T 
@@ -19,26 +20,29 @@ type DataType = T.Text --тип данных поля
 type FieldName = T.Text 
 type TableName = T.Text 
 type RelationField = T.Text --куда поле указывает
+type Description = T.Text --описание всего чего попало
 
 
-data Field = Regular FieldName DataType 
-	| Key FieldName DataType 
-	| Relation FieldName DataType TableName RelationField 
+data Field = Regular FieldName DataType Description
+	| Key FieldName DataType Description
+	| Relation FieldName DataType TableName RelationField Description
         deriving (Eq,Ord,Show)
  
 
-data Table = Table TableName (S.Set Field) deriving (Ord,Eq,Show)
+data Table = Table TableName Description (S.Set Field) deriving (Ord,Eq,Show)
 
 
 
 class TableOperations a where
     tName :: a -> TableName
+    description :: a -> Description
     tBody :: a -> S.Set Field
     
 
 instance TableOperations Table where
-    tName (Table name _) = name
-    tBody (Table _ body) = body
+    tName (Table name _ _) = name
+    description (Table _ description _ _) = description
+    tBody (Table _ _ body) = body
 
  
     
@@ -46,7 +50,7 @@ instance TableOperations Table where
 type Scheme = S.Set Table --типа база
 
 --сделано чтобы присвоить вес ребрам. вес ребра - еденица.
-data RelationInGraph = RelationInGraph ((TableName, FieldName),(TableName, FieldName)) deriving (Eq, Ord, Show)
+data RelationInGraph = RelationInGraph Description ((TableName, FieldName),(TableName, FieldName)) deriving (Eq, Ord, Show)
 
 instance Num RelationInGraph where
     (+) a b = 2
@@ -55,9 +59,12 @@ instance Num RelationInGraph where
     signum a = 1
     fromInteger a = RelationInGraph ((T.pack "",T.pack ""),(T.pack "",T.pack ""))
     negate a = 1
+    
 instance Real RelationInGraph where
     toRational a =  1
     
+
+dummyTable = Table (T.pack "") (S.fromList [])
 
 
 

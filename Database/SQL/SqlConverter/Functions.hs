@@ -5,9 +5,11 @@ module Database.SQL.SQLConverter.Functions (
     csvFile
     ,getScheme
     ,buildTableGraph
-    ,nodeByTableName
-    ,nodesArea
+    ,buildTableGraph'
+    ,pathArea
     ,edgesArea
+    ,nodeByTableName
+    ,tableNameByNode
 ) where
 
 import Database.SQL.SQLConverter.Types
@@ -23,6 +25,22 @@ import qualified Data.Text as T
 import qualified Data.Set as S  
 import Data.Graph.Inductive as G
 import Data.Graph.Inductive.Query.BFS(lbft, bft)
+
+--отладочный стафф
+nodeByTableName :: Gr Table RelationInGraph -> TableName -> Int
+nodeByTableName graph tname =
+    let labelHasName :: TableName -> LNode Table -> Bool
+        labelHasName tname (_, table) = tName table == tname
+    in case (L.find (labelHasName tname)  $ labNodes graph) of
+        Just (a,_) -> a
+        Nothing    -> 0
+        
+tableNameByNode :: Gr Table RelationInGraph -> Node -> String
+tableNameByNode graph node = T.unpack 
+    . tName 
+    $ case (lab graph node) of
+        Just a -> a
+        Nothing -> dummyTable
 
 
 --parsers. stolen from
@@ -93,7 +111,7 @@ atomTable field
 rollup :: S.Set Table -> S.Set Table --свертка атомарных таблиц в одну
 rollup setTab = 
     let tabNames = S.toList $ S.map tName setTab
-        dummyTable = Table (T.pack "") (S.fromList [])
+        
         tablesByName :: S.Set Table -> TableName -> S.Set Table
         tablesByName setTab tabName = S.filter (\curTable -> tName curTable == tabName) setTab
         
@@ -115,13 +133,7 @@ getScheme csv =
 --путь связей = путь графа
 
 
-dummyNode = [(0, Table (T.pack "NULL") S.empty)]--пустая таблица, чтобы собирать все битые ссылки, чтобы не падали чистые функции, ребра не уходили в пустоту и все такое
-            
 
-
-        
-
-        
 buildTableGraph ::  Scheme -> Gr Table RelationInGraph
 buildTableGraph scheme =
     let nodes = zip [1..(S.size scheme)] (S.toList scheme) ++ dummyNode --таблицы, разобранные в ноды
@@ -149,33 +161,26 @@ buildTableGraph scheme =
     in  mkGraph nodes $ getAllEdges nodes
 
 
+buildTableGraph' a  = undir $ buildTableGraph a  --ненаправленный
     
-nodeByTableName :: Gr Table RelationInGraph -> TableName -> Int
-nodeByTableName graph tname =
-    let labelHasName :: TableName -> LNode Table -> Bool
-        labelHasName tname (_, table) = tName table == tname
-    in case (L.find (labelHasName tname)  $ labNodes graph) of
-        Just (a,_) -> a
-        Nothing    -> 0
+
+dummyNode = [(0, Table (T.pack "NULL") S.empty)]--пустая таблица, чтобы собирать все битые ссылки, чтобы не падали чистые функции, ребра не уходили в пустоту и все такое
 
 --Вычленение интересующего множества связей-таблиц из схемы
 
 --множество таблиц, в которых пролегает разрешение связей. интересуют только пути связей, которые заканчиваются на других  таблицах подграфа
---так же передаются таблицы, которые не должны быть в схеме
-nodesArea :: [TableName] -> [TableName] -> Gr Table RelationInGraph -> [Node]
-nodesArea l d graph = 
-    let leafs = fmap (nodeByTableName graph) l
-        deprecates = fmap (nodeByTableName graph) d
+pathArea :: [String] -> Gr Table RelationInGraph -> [[Node]]
+pathArea l graph = 
+    let leafs = fmap ((nodeByTableName graph) . T.pack) l
         bft1 a b = bft b a
-        validPathes :: Gr Table RelationInGraph -> [Node] -> [[[Node]]] -> [Node]
-        validPathes graph leafs pathess = S.toList 
+        validPathes :: Gr Table RelationInGraph -> [Node] -> [[[Node]]] -> [[Node]]
+        validPathes graph leafs pathess = 
+            S.toList 
             . S.fromList 
-            . L.concat 
             . L.concat $ fmap (\pathes ->  
-                                       filter ((\path -> elem (head path)) leafs) pathes) pathess
-       
-    in  filter (\node -> not $ node `elem` deprecates) 
-        $ validPathes graph leafs 
+                       filter (\path -> and 
+                            [elem (head path) leafs, elem (last path) leafs]) pathes) pathess
+    in  validPathes graph leafs 
         $ fmap (bft1 graph) leafs
     
 --множество связей между этими узлами, которые заканчиваются в том же множестве узлов
