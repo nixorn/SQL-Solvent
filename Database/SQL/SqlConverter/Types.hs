@@ -52,6 +52,8 @@ type Scheme = S.Set Table --типа база
 --сделано чтобы присвоить вес ребрам. вес ребра - еденица.
 data RelationInGraph = RelationInGraph Description ((TableName, FieldName),(TableName, FieldName)) deriving (Eq, Ord, Show)
 
+
+
 instance Num RelationInGraph where
     (+) a b = 2
     (*) a b = 1

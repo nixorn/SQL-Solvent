@@ -96,9 +96,9 @@ csvFile =
 --получение схемы
 atomTable :: [T.Text] -> Table --атомарная "таблица" с  именем и одним полем. Фактически сейчас имеем множество полей
 atomTable field  
-  | fieldType == "Regular" = Table tableName (S.fromList [Regular fieldName dataType])
-  | fieldType == "Key"          = Table tableName (S.fromList [Key fieldName dataType ])
-  | fieldType == "Relation"     = Table tableName (S.fromList [Relation fieldName dataType relationTable relationField])
+  | fieldType == "Regular" = Table tableName tableDescr (S.fromList [Regular fieldName dataType fieldDescr ])
+  | fieldType == "Key"          = Table tableName (S.fromList [Key fieldName dataType fieldDescr])
+  | fieldType == "Relation"     = Table tableName (S.fromList [Relation fieldName dataType relationTable relationField fieldDescr])
   | otherwise = Table (T.pack "") (S.fromList [])
   where
     fieldType       = field !! 0
@@ -107,6 +107,8 @@ atomTable field
     fieldName       = field !! 3
     relationTable   = field !! 4
     relationField   = field !! 5
+    tableDescr      = field !! 6
+    fieldDescr      = field !! 7
     
 rollup :: S.Set Table -> S.Set Table --свертка атомарных таблиц в одну
 rollup setTab = 
