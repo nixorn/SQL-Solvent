@@ -4,6 +4,7 @@ module Database.SQL.SQLConverter.IOFunctions (
     getSchemeGraph
     ,tnames
     ,redirectScheme
+    ,getFile
     
 ) where
 
@@ -42,15 +43,6 @@ getFile fp = do
     file <- readFile fp
     return $ T.pack file 
 
-
-printScheme :: String -> IO ()
-printScheme path = do
-    file <- getFile path
-    let raw = case (parseOnly csvFile file) of
-                Right a -> a
-                Left _ -> [[]]
-      
-    print $ getScheme raw
 
 redirectScheme :: String -> IO Scheme
 redirectScheme path = do

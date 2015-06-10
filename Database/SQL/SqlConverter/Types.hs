@@ -6,7 +6,7 @@ module Database.SQL.SQLConverter.Types (
 	Field (Regular, Key, Relation),
 	Table (Table),
     Scheme,
-    TableOperations (tName,tBody),
+    TableOperations (tName, tBody, description),
     RelationInGraph (RelationInGraph),
     dummyTable
 	
@@ -40,8 +40,8 @@ class TableOperations a where
     
 
 instance TableOperations Table where
-    tName (Table name _ _) = name
-    description (Table _ description _ _) = description
+    tName (Table name _ _ ) = name
+    description (Table _ description _ ) = description
     tBody (Table _ _ body) = body
 
  
@@ -50,7 +50,7 @@ instance TableOperations Table where
 type Scheme = S.Set Table --типа база
 
 --сделано чтобы присвоить вес ребрам. вес ребра - еденица.
-data RelationInGraph = RelationInGraph Description ((TableName, FieldName),(TableName, FieldName)) deriving (Eq, Ord, Show)
+data RelationInGraph = RelationInGraph ((TableName, FieldName),(TableName, FieldName)) deriving (Eq, Ord, Show)
 
 
 
@@ -66,7 +66,7 @@ instance Real RelationInGraph where
     toRational a =  1
     
 
-dummyTable = Table (T.pack "") (S.fromList [])
+dummyTable = Table (T.pack "dummy") (T.pack "dummy") (S.fromList [])
 
 
 

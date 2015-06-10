@@ -10,6 +10,7 @@ module Database.SQL.SQLConverter.Functions (
     ,edgesArea
     ,nodeByTableName
     ,tableNameByNode
+    ,findEdgesOnNodes
 ) where
 
 import Database.SQL.SQLConverter.Types
@@ -41,7 +42,20 @@ tableNameByNode graph node = T.unpack
     $ case (lab graph node) of
         Just a -> a
         Nothing -> dummyTable
+        
+filterEdgesByNode :: Gr Table RelationInGraph -> String -> LEdge RelationInGraph -> Bool
+filterEdgesByNode graph table (a,b,_) =
+        let node = nodeByTableName graph $ T.pack $ table
+        in  or [a == node, b == node]
 
+            
+
+findEdgesOnNodes :: Gr Table RelationInGraph -> [String] -> [RelationInGraph]
+findEdgesOnNodes graph tables = 
+    let nodes = fmap ((nodeByTableName graph) . T.pack )  tables
+        filterRelations nods (a,b,_) =  and [a `elem` nods, b `elem` nods]
+        pprint (_,_, a) = a
+    in  fmap pprint $ filter (filterRelations nodes) $ labEdges graph
 
 --parsers. stolen from
 ---https://github.com/robinbb/attoparsec-csv/blob/master/Text/ParseCSV.hs 
@@ -97,9 +111,9 @@ csvFile =
 atomTable :: [T.Text] -> Table --атомарная "таблица" с  именем и одним полем. Фактически сейчас имеем множество полей
 atomTable field  
   | fieldType == "Regular" = Table tableName tableDescr (S.fromList [Regular fieldName dataType fieldDescr ])
-  | fieldType == "Key"          = Table tableName (S.fromList [Key fieldName dataType fieldDescr])
-  | fieldType == "Relation"     = Table tableName (S.fromList [Relation fieldName dataType relationTable relationField fieldDescr])
-  | otherwise = Table (T.pack "") (S.fromList [])
+  | fieldType == "Key"          = Table tableName tableDescr (S.fromList [Key fieldName dataType fieldDescr])
+  | fieldType == "Relation"     = Table tableName tableDescr (S.fromList [Relation fieldName dataType relationTable relationField fieldDescr])
+  | otherwise = dummyTable
   where
     fieldType       = field !! 0
     dataType        = field !! 1
@@ -118,7 +132,7 @@ rollup setTab =
         tablesByName setTab tabName = S.filter (\curTable -> tName curTable == tabName) setTab
         
         rollupFields :: S.Set Table -> Table
-        rollupFields =  S.foldl (\ a b -> Table (tName b)  $ S.union  (tBody a) (tBody b)) dummyTable 
+        rollupFields =  S.foldl (\ a b -> Table (tName b) (description b)  $ S.union  (tBody a) (tBody b)) dummyTable 
     in  S.fromList $ fmap (rollupFields . tablesByName setTab) tabNames
 
     
@@ -148,9 +162,9 @@ buildTableGraph scheme =
             ++ dummyNode 
 
         getEdge :: [LNode Table] -> LNode Table -> Field -> Maybe (LEdge RelationInGraph)
-        getEdge _ _ (Key      _ _) = Nothing
-        getEdge _ _ (Regular  _ _) = Nothing
-        getEdge nodes (node, tbl1) (Relation  fnm dt tblnm2 fnm2) = Just  (node, 
+        getEdge _ _ (Key      _ _ _) = Nothing
+        getEdge _ _ (Regular  _ _ _) = Nothing
+        getEdge nodes (node, tbl1) (Relation  fnm dt tblnm2 fnm2 des) = Just  (node, 
             searchTargetNode tblnm2 nodes, --целевая нода
             RelationInGraph ((tName tbl1, fnm), (tblnm2, fnm2))) --((ссылающаяся таблица, ссылающееся поле),(целевая таблица, целевое поле))
        
@@ -166,7 +180,7 @@ buildTableGraph scheme =
 buildTableGraph' a  = undir $ buildTableGraph a  --ненаправленный
     
 
-dummyNode = [(0, Table (T.pack "NULL") S.empty)]--пустая таблица, чтобы собирать все битые ссылки, чтобы не падали чистые функции, ребра не уходили в пустоту и все такое
+dummyNode = [(0, dummyTable)]--пустая таблица, чтобы собирать все битые ссылки, чтобы не падали чистые функции, ребра не уходили в пустоту и все такое
 
 --Вычленение интересующего множества связей-таблиц из схемы
 
