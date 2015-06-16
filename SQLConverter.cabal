@@ -1,7 +1,7 @@
 name:                SQLConverter
 version:             0.1.0.0
 license-file:        LICENSE
-author:              nixorn
+author:              nixorn, zezic
 maintainer:          a-kanev@yandex.ru
 build-type:          Simple
 cabal-version:       >=1.10
