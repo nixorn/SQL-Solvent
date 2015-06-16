@@ -11,6 +11,12 @@ Firstly, you need the Haskell Platform (https://www.haskell.org/platform/). Inst
 ```
 cabal update
 ```
+If you on Win, type this also:
+```
+cabal install cabal-install
+```
+That will upgrade your platform.
+If you on *nix - do upgrading as you know.
 
 Secondly, clone repository, cd into and say:
 ```

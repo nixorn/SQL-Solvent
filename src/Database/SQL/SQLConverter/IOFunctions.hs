@@ -10,11 +10,13 @@ module Database.SQL.SQLConverter.IOFunctions (
 
 import Database.SQL.SQLConverter.Functions
 import Database.SQL.SQLConverter.Types
+import Database.SQL.SQLConverter.Gui
 import Control.Exception
 
 
 import Data.Graph.Inductive.Graph 
 import Data.Graph.Inductive
+
 
 import Data.Attoparsec.Text
 import qualified Data.Set as S
