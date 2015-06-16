@@ -25,7 +25,6 @@ library
               , text
               , containers
               , fgl
-              , network
               , threepenny-gui
 
   default-language:    Haskell2010

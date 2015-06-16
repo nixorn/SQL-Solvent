@@ -8,7 +8,7 @@ import           Graphics.UI.Threepenny.Core
 startGui :: IO ()
 startGui = do
     startGUI defaultConfig
-        { jsPort       = 8023
+        { jsPort       = Just 8023
         , jsStatic     = Just "../js"
         } setup
         
