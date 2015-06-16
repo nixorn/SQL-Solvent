@@ -8,23 +8,25 @@ cabal-version:       >=1.10
 
   
 library
-
+  hs-source-dirs: src
   exposed-modules:
     Database.SQL.SQLConverter.IOFunctions
     , Database.SQL.SQLConverter.Functions
     , Database.SQL.SQLConverter.Types
     , Database.SQL.SQLConverter.NaiveSqlTypes
+    , Database.SQL.SQLConverter.Gui
      
 
   build-depends:
-    base
-    , attoparsec
-    , bytestring
-    , utf8-string
-    , text
-    , containers
-    , fgl
-    --, fgl-visualize
+                base
+              , attoparsec
+              , bytestring
+              , utf8-string
+              , text
+              , containers
+              , fgl
+              , network
+              , threepenny-gui
 
   default-language:    Haskell2010
 
