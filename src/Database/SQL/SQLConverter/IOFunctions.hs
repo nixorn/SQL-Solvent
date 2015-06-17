@@ -23,7 +23,7 @@ import qualified Data.Set as S
 import qualified Data.Text as T 
 
 
---дляконсольный отладочный стафф 
+--для консольный отладочный стафф 
 csvpath = "example.csv"
    
 getSchemeGraph :: IO (Gr Table RelationInGraph)
