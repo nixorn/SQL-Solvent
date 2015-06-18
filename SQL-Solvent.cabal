@@ -30,6 +30,7 @@ library
     , Database.SQL.SQLSolvent.Types
     , Database.SQL.SQLSolvent.NaiveSqlTypes
     , Database.SQL.SQLSolvent.Server
+    , Database.SQL.SQLSolvent.ServerAPI
      
 
   build-depends:

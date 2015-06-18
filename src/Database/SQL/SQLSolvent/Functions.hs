@@ -6,11 +6,8 @@ module Database.SQL.SQLSolvent.Functions (
     ,getScheme
     ,buildTableGraph
     ,buildTableGraph'
-    ,pathArea
-    ,edgesArea
-    ,nodeByTableName
-    ,tableNameByNode
-    ,findEdgesOnNodes
+
+
 ) where
 
 import Database.SQL.SQLSolvent.Types
@@ -27,35 +24,7 @@ import qualified Data.Set as S
 import Data.Graph.Inductive as G
 import Data.Graph.Inductive.Query.BFS(lbft, bft)
 
---отладочный стафф
-nodeByTableName :: Gr Table RelationInGraph -> TableName -> Int
-nodeByTableName graph tname =
-    let labelHasName :: TableName -> LNode Table -> Bool
-        labelHasName tname (_, table) = tName table == tname
-    in case (L.find (labelHasName tname)  $ labNodes graph) of
-        Just (a,_) -> a
-        Nothing    -> 0
-        
-tableNameByNode :: Gr Table RelationInGraph -> Node -> String
-tableNameByNode graph node = T.unpack 
-    . tName 
-    $ case (lab graph node) of
-        Just a -> a
-        Nothing -> dummyTable
-        
-filterEdgesByNode :: Gr Table RelationInGraph -> String -> LEdge RelationInGraph -> Bool
-filterEdgesByNode graph table (a,b,_) =
-        let node = nodeByTableName graph $ T.pack $ table
-        in  or [a == node, b == node]
 
-            
-
-findEdgesOnNodes :: Gr Table RelationInGraph -> [String] -> [RelationInGraph]
-findEdgesOnNodes graph tables = 
-    let nodes = fmap ((nodeByTableName graph) . T.pack )  tables
-        filterRelations nods (a,b,_) =  and [a `elem` nods, b `elem` nods]
-        pprint (_,_, a) = a
-    in  fmap pprint $ filter (filterRelations nodes) $ labEdges graph
 
 --parsers. stolen from
 ---https://github.com/robinbb/attoparsec-csv/blob/master/Text/ParseCSV.hs 
@@ -182,32 +151,4 @@ buildTableGraph' a  = undir $ buildTableGraph a  --ненаправленный
 
 dummyNode = [(0, dummyTable)]--пустая таблица, чтобы собирать все битые ссылки, чтобы не падали чистые функции, ребра не уходили в пустоту и все такое
 
---Вычленение интересующего множества связей-таблиц из схемы
 
---множество  связей. интересуют только пути связей, которые заканчиваются на других  таблицах подграфа а так же смежных с ними
-pathArea :: [String] -> Gr Table RelationInGraph -> [[Node]]
-pathArea l graph = 
-    let leafs = fmap ((nodeByTableName graph) . T.pack) l
-        bft1 a b = bft b a
-        validPathes :: Gr Table RelationInGraph -> [Node] -> [[[Node]]] -> [[Node]]
-        validPathes graph leafs pathess = 
-            S.toList 
-            . S.fromList 
-            . L.concat $ fmap (\pathes ->  
-                       filter (\path -> and 
-                            [elem (head path) leafs, elem (last path) leafs]) pathes) pathess
-    in  validPathes graph leafs 
-        $ fmap (bft1 graph) leafs
-    
---множество связей между этими узлами, которые заканчиваются в том же множестве узлов
-
-edgesArea :: Gr Table RelationInGraph -> [Node] -> [Edge]
-edgesArea graph nodes = 
-    let 
-        filterEdges :: Gr Table RelationInGraph -> [Node] -> LEdge a -> Bool
-        filterEdges graph nodes (n1, n2, _) = and [n1 `elem` nodes, n1 `elem` nodes]
-        
-        mapEdges :: LEdge a -> Edge
-        mapEdges (n1, n2, _) = (n1,n2) 
-    in fmap mapEdges $ filter (filterEdges graph nodes ) $ S.toList . S.fromList . L.concat $ fmap (inn graph) nodes ++ fmap (out graph) nodes
-    

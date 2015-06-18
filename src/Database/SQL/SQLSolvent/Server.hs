@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Database.SQL.SQLSolvent.Server (
   startGui
+  ,getSchemeFile
                                      ) where
 
 
@@ -27,4 +28,6 @@ site =
 
 
 
+
+getSchemeFile = undefined
 
