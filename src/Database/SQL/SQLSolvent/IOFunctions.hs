@@ -1,0 +1,63 @@
+{-# Language OverloadedStrings #-}
+module Database.SQL.SQLSolvent.IOFunctions (
+
+    getSchemeGraph
+    ,tnames
+    ,redirectScheme
+    ,getFile
+    --Server.hs
+    ,startGui
+    
+) where
+
+import Database.SQL.SQLSolvent.Functions
+import Database.SQL.SQLSolvent.Types
+import Database.SQL.SQLSolvent.Server
+import Control.Exception
+
+
+import Data.Graph.Inductive.Graph 
+import Data.Graph.Inductive
+
+
+import Data.Attoparsec.Text
+import qualified Data.Set as S
+import qualified Data.Text as T 
+
+
+main :: IO ()
+main = startGui
+
+--для консольный отладочный стафф 
+csvpath = "example.csv"
+   
+getSchemeGraph :: IO (Gr Table RelationInGraph)
+getSchemeGraph = do
+    scheme <- redirectScheme csvpath
+    return $ buildTableGraph scheme
+  
+tnames :: Gr Table RelationInGraph -> [Node] -> [TableName]
+tnames graph nodes  = fmap (\node -> case (lab graph node) of
+                                            Just a -> tName a 
+                                            Nothing -> T.pack "") nodes
+                                            
+
+    
+--IO
+
+getFile :: FilePath -> IO T.Text
+getFile fp = do
+    file <- readFile fp
+    return $ T.pack file 
+
+
+redirectScheme :: String -> IO Scheme
+redirectScheme path = do
+    file <- getFile path
+    let raw = case (parseOnly csvFile file) of
+                Right a -> a
+                Left _ -> [[]]
+      
+    return $ getScheme raw
+
+

@@ -1,0 +1,49 @@
+name:                SQL-Solvent
+version:             0.1.0.0
+license-file:        LICENSE
+author:              nixorn, zezic
+maintainer:          a-kanev@yandex.ru
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable solvent
+  hs-source-dirs: src
+  main-is: Database/SQL/SQLSolvent/Main.hs
+
+  build-depends:
+      base
+      , attoparsec
+      , bytestring
+      , utf8-string
+      , text
+      , containers
+      , fgl
+      , snap-server
+      , snap-core
+  default-language:    Haskell2010
+  
+library
+  hs-source-dirs: src
+  exposed-modules:
+    Database.SQL.SQLSolvent.IOFunctions
+    , Database.SQL.SQLSolvent.Functions
+    , Database.SQL.SQLSolvent.Types
+    , Database.SQL.SQLSolvent.NaiveSqlTypes
+    , Database.SQL.SQLSolvent.Server
+     
+
+  build-depends:
+                base
+              , attoparsec
+              , bytestring
+              , utf8-string
+              , text
+              , containers
+              , fgl
+              , snap-server
+              , snap-core
+
+  default-language:    Haskell2010
+
+
+

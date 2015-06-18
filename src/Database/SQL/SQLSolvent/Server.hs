@@ -1,12 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Database.SQL.SQLConverter.Server (
+module Database.SQL.SQLSolvent.Server (
   startGui
                                      ) where
 
 
 
 
-import Database.SQL.SQLConverter.Types
+import Database.SQL.SQLSolvent.Types
 
 
 

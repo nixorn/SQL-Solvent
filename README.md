@@ -23,3 +23,5 @@ Secondly, clone repository, cd into and say:
 cabal sandbox init
 cabal install
 ```
+
+This will build Solvent.
