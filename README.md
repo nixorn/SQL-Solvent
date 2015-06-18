@@ -22,6 +22,9 @@ Secondly, clone repository, cd into and say:
 ```
 cabal sandbox init
 cabal install
+cabal build
 ```
 
-This will build Solvent.
+run ./dist/build/solvent(.exe), go 127.0.0.1:8000
+
+static files in ./static . Copy ./static in directory, where you run solvent(.exe)
