@@ -10,7 +10,7 @@ module Database.SQL.SQLConverter.IOFunctions (
 
 import Database.SQL.SQLConverter.Functions
 import Database.SQL.SQLConverter.Types
-import Database.SQL.SQLConverter.Gui
+import Database.SQL.SQLConverter.Server
 import Control.Exception
 
 

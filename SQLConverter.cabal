@@ -14,7 +14,7 @@ library
     , Database.SQL.SQLConverter.Functions
     , Database.SQL.SQLConverter.Types
     , Database.SQL.SQLConverter.NaiveSqlTypes
-    , Database.SQL.SQLConverter.Gui
+    , Database.SQL.SQLConverter.Server
      
 
   build-depends:
@@ -25,7 +25,8 @@ library
               , text
               , containers
               , fgl
-              , snap
+              , snap-server
+              , snap-core
 
   default-language:    Haskell2010
 
