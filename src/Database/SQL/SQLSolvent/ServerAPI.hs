@@ -53,7 +53,7 @@ subGraph = undefined
 
 
 
-nodeByTableName :: Gr Table RelationInGraph -> TableName -> Int
+nodeByTableName :: Gr Table RelWIthId -> TableName -> Int
 nodeByTableName graph tname =
     let labelHasName :: TableName -> LNode Table -> Bool
         labelHasName tname (_, table) = tName table == tname
@@ -61,20 +61,20 @@ nodeByTableName graph tname =
         Just (a,_) -> a
         Nothing    -> 0
         
-tableNameByNode :: Gr Table RelationInGraph -> Node -> String
+tableNameByNode :: Gr Table RelWIthId -> Node -> String
 tableNameByNode graph node = T.unpack 
     . tName 
     $ case (lab graph node) of
         Just a -> a
         Nothing -> dummyTable
         
-filterEdgesByNode :: Gr Table RelationInGraph -> String -> LEdge RelationInGraph -> Bool
+filterEdgesByNode :: Gr Table RelWIthId -> String -> LEdge RelWIthId -> Bool
 filterEdgesByNode graph table (a,b,_) =
         let node = nodeByTableName graph $ T.pack $ table
         in  or [a == node, b == node]
 
 
-findEdgesOnNodes :: Gr Table RelationInGraph -> [String] -> [RelationInGraph]
+findEdgesOnNodes :: Gr Table RelWIthId -> [String] -> [RelWIthId]
 findEdgesOnNodes graph tables = 
     let nodes = fmap ((nodeByTableName graph) . T.pack )  tables
         filterRelations nods (a,b,_) =  and [a `elem` nods, b `elem` nods]
