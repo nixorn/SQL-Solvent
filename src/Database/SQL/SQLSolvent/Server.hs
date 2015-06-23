@@ -16,6 +16,7 @@ import           Snap.Util.FileUploads
 import           Snap.Util.FileServe
 import           Snap.Http.Server
 import           Control.Concurrent
+import           Network.CGI (liftIO)
 
 import Data.Graph.Inductive as G
 import qualified Data.Text as T
@@ -46,7 +47,7 @@ startGui = do
 site :: MVar GraphEnv -> Snap ()
 site e_ment =
     ifTop (serveFile "./static/index.html") <|>
-    dir "upload" (filehandler e_ment)   <|> 
+    dir "upload" (filehandler e_ment)       <|> 
     dir "static" (serveDirectory "./static")
    
 ----------получаем файл от юзера
@@ -72,7 +73,7 @@ buildTabGraSnap :: MonadSnap m => MVar GraphEnv
     -> m ()
 buildTabGraSnap _ ((_,Left _):_) = return ()
 buildTabGraSnap e_ment ((_ ,Right filepath):_) = do
-  forkIO $ do
+  liftIO $ forkIO $ do
     scheme <- redirectScheme filepath
     let graph = buildTableGraph scheme
     e <- takeMVar e_ment
