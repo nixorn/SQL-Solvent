@@ -6,7 +6,7 @@ module Database.SQL.SQLSolvent.Functions (
     ,getScheme
     ,buildTableGraph
     ,buildTableGraph'
-
+    ,buildEmptyTableGraph
 
 ) where
 
@@ -117,9 +117,10 @@ getScheme csv =
 --реляционная связь = ребро - Edge или LEdge, что эквивалентно
 --путь связей = путь графа
 
+buildEmptyTableGraph :: Gr Table RelWIthId
+buildEmptyTableGraph = G.empty --tempty  ((0, 0, (0,RelationInGraph ((T.empty, T.empty),(T.empty, T.empty)))))
 
-
-buildTableGraph ::  Scheme -> Gr Table RelationInGraph
+buildTableGraph ::  Scheme -> Gr Table RelWIthId
 buildTableGraph scheme =
     let nodes = zip [1..(S.size scheme)] (S.toList scheme) ++ dummyNode --таблицы, разобранные в ноды
         
@@ -142,13 +143,14 @@ buildTableGraph scheme =
         
         getAllEdges :: [LNode Table] -> [LEdge RelationInGraph]
         getAllEdges nodes = L.concat $ fmap (getNodeEdges nodes)  nodes
-        
-    in  mkGraph nodes $ getAllEdges nodes
 
+        packEdges :: [LEdge RelationInGraph] -> [Int] -> [LEdge RelWIthId]
+        packEdges ((node1, node2, des):rs)  (i:intes) =  (node1, node2, (i, des)): (packEdges rs intes)
+                                         
+    in  mkGraph nodes $ packEdges (getAllEdges nodes) [1..]
 
 buildTableGraph' a  = undir $ buildTableGraph a  --ненаправленный
     
-
 dummyNode = [(0, dummyTable)]--пустая таблица, чтобы собирать все битые ссылки, чтобы не падали чистые функции, ребра не уходили в пустоту и все такое
 
 

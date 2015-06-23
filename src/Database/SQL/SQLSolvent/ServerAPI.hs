@@ -1,7 +1,7 @@
 {-# Language OverloadedStrings #-}
 module Database.SQL.SQLSolvent.ServerAPI (
     parseRequest
-	,nodeByTableName
+    ,nodeByTableName
     ,tableNameByNode
     ,findEdgesOnNodes
 ) where
@@ -15,7 +15,6 @@ module Database.SQL.SQLSolvent.ServerAPI (
 добавление/удаление таблицы(имя)            тот же массив с добавленными/удаленными элементами(и маркерами по необходимости)
 
 Имеем глобальный граф. Потом имеем маленький подграф, с которым юзер работает в данный момент. 
-
 -}
 
 import Database.SQL.SQLSolvent.Types
@@ -27,19 +26,13 @@ import qualified Data.Text as T
 import qualified Data.List as L
 import Data.Graph.Inductive 
 import Data.Graph.Inductive.Query.BFS(lbft, bft)
+import Database.SQL.SQLSolvent.Functions
 
 
 parseRequest = undefined
 
 buildResponse = undefined
 
-
---маркировка подсветки
-type Id     = Int
-type Mark   = Bool      --подсвечено/нет
-type EdgeMarkers = [(Id, Mark)]    
-type NodeMarkers = [(Id, Mark)] 
-type Markers     = (NodeMarkers, EdgeMarkers)
 
 
 
@@ -54,7 +47,6 @@ unlightNode = undefined     --снять подсветку с ноды и вс�
 --построение подграфа из основного графа.
 
 subGraph = undefined
-
 
 
 

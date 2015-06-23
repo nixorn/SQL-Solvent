@@ -5,14 +5,12 @@ module Database.SQL.SQLSolvent.IOFunctions (
     ,tnames
     ,redirectScheme
     ,getFile
-    --Server.hs
-    ,startGui
+
     
 ) where
 
 import Database.SQL.SQLSolvent.Functions
 import Database.SQL.SQLSolvent.Types
-import Database.SQL.SQLSolvent.Server
 import Control.Exception
 
 
@@ -25,13 +23,11 @@ import qualified Data.Set as S
 import qualified Data.Text as T 
 
 
-main :: IO ()
-main = startGui
 
 --для консольный отладочный стафф 
 csvpath = "example.csv"
    
-getSchemeGraph :: IO (Gr Table RelationInGraph)
+getSchemeGraph :: IO (Gr Table RelWIthId)
 getSchemeGraph = do
     scheme <- redirectScheme csvpath
     return $ buildTableGraph scheme

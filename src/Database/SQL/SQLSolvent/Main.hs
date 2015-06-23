@@ -1,4 +1,4 @@
-import Database.SQL.SQLSolvent.IOFunctions
+import Database.SQL.SQLSolvent.Server
 
 main :: IO ()
 main = startGui
