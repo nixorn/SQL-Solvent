@@ -25,7 +25,6 @@ import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.List as L
 import Data.Graph.Inductive 
-import Data.Graph.Inductive.Query.BFS(lbft, bft)
 import Database.SQL.SQLSolvent.Functions
 
 
@@ -34,19 +33,48 @@ parseRequest = undefined
 buildResponse = undefined
 
 
+mark        = undefined     --обработать маркировку 
 
 
-mark = undefined            --обработать маркировку 
 
-hilightEdge = undefined     --подсветить ребро, и ноды, которые оно связывает
-hilightNode = undefined     --подсветить ноду и все связи с подсвеченными нодами
-unlightEdge = undefined     --снять подсветку с ребра, с нод подсветку не снимать
-unlightNode = undefined     --снять подсветку с ноды и всех его ребер
+
+addNodes :: GlbGraph -> LocGraph -> [TableName] -> LocGraph --добавление кучки новых нод
+addNodes  gl lc tn =
+    mkGraph (labNodes  lc ++ getNodesForAdd gl tn) (labEdges lc ++ getEdgesForAdd gl tn)
+    where
+
+      getNodesForAdd :: GlbGraph -> [TableName] -> [LNode Table]
+      getNodesForAdd graph (t:ts) = 
+        let node = nodeByTableName graph t
+            surround = node : neighbors graph node --таблица плюс все соседние
+              
+            inSurround :: [TableId] -> LNode Table -> Bool
+            inSurround nds (nd, _) = nd `elem` nds
+              
+        in filter (inSurround surround) $ labNodes graph ++ getNodesForAdd graph ts
+
+      getEdgesForAdd :: GlbGraph -> [TableName] -> [LEdge RelWIthId]
+      getEdgesForAdd graph tbls = filter f $ labEdges graph where
+          nodes = fmap (nodeByTableName graph) tbls 
+          f (n1, n2, _) = or [n1 `elem` nodes, n2 `elem` nodes]
+          
+ 
+hilightEdge :: LocGraph -> Markers -> EdgeId -> Markers --подсветить ребро, и ноды, которые оно связывает
+hilightEdge = undefined     
+
+hilightNode :: LocGraph -> Markers -> TableId -> Markers --подсветить ноду и все связи с подсвеченными нодами
+hilightNode = undefined   
+
+unlightEdge :: LocGraph -> Markers -> EdgeId -> Markers  --снять подсветку с ребра, с нод подсветку не снимать
+unlightEdge = undefined    
+
+unlightNode :: LocGraph -> Markers -> TableId -> Markers  --снять подсветку с ноды и всех его ребер
+unlightNode = undefined   
 
 
 --построение подграфа из основного графа.
 
-subGraph = undefined
+subGraph    = undefined
 
 
 

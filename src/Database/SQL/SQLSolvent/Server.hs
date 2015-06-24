@@ -46,9 +46,10 @@ startGui = do
 
 site :: MVar GraphEnv -> Snap ()
 site e_ment =
-    ifTop (serveFile "./static/index.html") <|>
-    dir "upload" (filehandler e_ment)       <|> 
-    dir "static" (serveDirectory "./static")
+    ifTop           (serveFile "./static/index.html") <|>
+    dir "upload"    (filehandler e_ment)              <|> 
+    --dir "addtables" ()                                <|>
+    dir "static"    (serveDirectory "./static")
    
 ----------получаем файл от юзера
 --то, что в итоге тянет файл
@@ -81,8 +82,8 @@ buildTabGraSnap e_ment ((_ ,Right filepath):_) = do
   return ()
 
 
---то, что g
+--то, что отрисовывает
 
-renderGraph :: Either String (Gr Table RelWIthId) -> Response
+renderGraph :: Gr Table RelWIthId -> Markers -> Response
 renderGraph = undefined
 

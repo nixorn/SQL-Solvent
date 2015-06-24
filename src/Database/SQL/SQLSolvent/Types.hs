@@ -9,18 +9,20 @@ module Database.SQL.SQLSolvent.Types (
                                      ,TableOperations (tName, tBody, description)
                                      ,RelationInGraph (RelationInGraph)
                                      ,RelWIthId()
-                                     ,Id          
+                                     ,TableId
+                                     ,EdgeId 
                                      ,Mark        
                                      ,EdgeMarkers 
                                      ,NodeMarkers 
                                      ,Markers     
                                      ,dummyTable
                                      ,tempty
-	
+                                     ,LocGraph
+	                                 ,GlbGraph
                                      ) where
 import qualified Data.Text as T 
 import qualified Data.Set as S
-
+import Data.Graph.Inductive 
 
 type FieldType = T.Text --RegularField|Key|Relation
 type DataType = T.Text --тип данных поля
@@ -82,8 +84,15 @@ dummyTable = Table (T.pack "dummy") (T.pack "dummy") (S.fromList [])
 
 
 --маркировка подсветки
-type Id          = Int
+type TableId     = Int
+type EdgeId      = Int
 type Mark        = Bool      --подсвечено/нет
-type EdgeMarkers = [(Id, Id, Mark)]    
-type NodeMarkers = [(Id, Mark)] 
+type EdgeMarkers = [(EdgeId, Mark)]    
+type NodeMarkers = [(TableId, Mark)] 
 type Markers     = (NodeMarkers, EdgeMarkers)
+
+--для удобства обозначения графов в сигнатурах
+type LocGraph = Gr Table RelWIthId
+type GlbGraph = Gr Table RelWIthId
+
+
