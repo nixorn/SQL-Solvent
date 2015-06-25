@@ -22,6 +22,7 @@ import           Network.CGI (liftIO)
 
 import Data.Graph.Inductive as G
 import qualified Data.Text as T
+import           Data.Text.Encoding (encodeUtf8)
 
 
 --для отрисовки/хранения
@@ -116,7 +117,7 @@ renderRequest e_ment = (liftIO $ (do
     forkIO $ putMVar e_ment e 
     let lc_graph = localGraph e
         mrkrs    = markers e
-        renderNode (id, Table name descr _) = (id, T.unpack name, T.unpack descr)
+        renderNode (id, Table name descr _) = (id, encodeUtf8 name, encodeUtf8 descr)
         renderEdge (from,to, (id, RelationInGraph ((_,fromName), (_,toName)))) = (from,to, (id, (fromName,toName)))
     return $ T.pack $ show (
         fmap renderNode $ labNodes lc_graph,
