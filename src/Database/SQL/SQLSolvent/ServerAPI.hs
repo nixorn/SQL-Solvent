@@ -1,9 +1,9 @@
 {-# Language OverloadedStrings #-}
 module Database.SQL.SQLSolvent.ServerAPI (
-    parseRequest
-    ,nodeByTableName
+    nodeByTableName
     ,tableNameByNode
     ,findEdgesOnNodes
+    ,addNodes
 ) where
 
 {-
@@ -28,18 +28,16 @@ import Data.Graph.Inductive
 import Database.SQL.SQLSolvent.Functions
 
 
-parseRequest = undefined
-
-buildResponse = undefined
 
 
-mark        = undefined     --обработать маркировку 
+
+ 
 
 
 
 
-addNodes :: GlbGraph -> LocGraph -> [TableName] -> LocGraph --добавление кучки новых нод
-addNodes  gl lc tn =
+addNodes :: GlbGraph -> LocGraph -> [TableName] -> LocGraph --добавление кучки новых нод и ребер ессесно
+addNodes gl lc tn =
     mkGraph (labNodes  lc ++ getNodesForAdd gl tn) (labEdges lc ++ getEdgesForAdd gl tn)
     where
 
@@ -72,12 +70,12 @@ unlightNode :: LocGraph -> Markers -> TableId -> Markers  --снять подс�
 unlightNode = undefined   
 
 
---построение подграфа из основного графа.
-
-subGraph    = undefined
 
 
+--тут мы строим тело респонса
 
+renderRequest :: LocGraph -> Markers -> String
+renderRequest lc markers = undefined
 
 
 

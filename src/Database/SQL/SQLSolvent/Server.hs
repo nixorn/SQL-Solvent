@@ -10,6 +10,8 @@ import Database.SQL.SQLSolvent.IOFunctions
 import Database.SQL.SQLSolvent.ServerAPI
 
 
+import qualified Data.ByteString.Lazy.UTF8 as U
+import           Text.Read
 import           Control.Applicative 
 import           Snap.Core 
 import           Snap.Util.FileUploads
@@ -46,9 +48,10 @@ startGui = do
 
 site :: MVar GraphEnv -> Snap ()
 site e_ment =
-    ifTop           (serveFile "./static/index.html") <|>
-    dir "upload"    (filehandler e_ment)              <|> 
-    --dir "addtables" ()                                <|>
+    ifTop            (serveFile "./static/index.html") <|>
+    dir "upload"     (filehandler e_ment)              <|> 
+    dir "addtables"  (parseAddResponse e_ment)         <|>
+    --dir "changemark" ()                                <|>
     dir "static"    (serveDirectory "./static")
    
 ----------получаем файл от юзера
@@ -81,9 +84,25 @@ buildTabGraSnap e_ment ((_ ,Right filepath):_) = do
     putMVar e_ment $ e {globalGraph = graph}
   return ()
 
+--getRequest
 
---то, что отрисовывает
+--тут мы принимаем данные из GUI и пишем все в окружение
+--тут нам расширяют локальный граф массивом табличек через имена
+parseAddResponse :: MonadSnap m => MVar GraphEnv  -> m ()
+parseAddResponse e_ment  = do
+    body <- readRequestBody 100000
 
-renderGraph :: Gr Table RelWIthId -> Markers -> Response
-renderGraph = undefined
-
+    case (readMaybe (U.toString body) :: Maybe [String] ) of
+        Just tns -> liftIO $ do  
+            e <- takeMVar e_ment
+            let gl_graph = globalGraph e
+                lc_graph = localGraph e
+                mrkrs    = markers e
+                tabnames = fmap T.pack tns
+                new_lc_graph = addNodes gl_graph lc_graph tabnames
+            putMVar e_ment $ e {localGraph = new_lc_graph}
+        Nothing       -> return ()
+        
+        
+        
+        
