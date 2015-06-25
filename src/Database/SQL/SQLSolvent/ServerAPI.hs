@@ -63,17 +63,16 @@ addNodes gl lc tn =
           
 
 hilightNode :: LocGraph -> Markers -> TableId -> Markers --подсветить ноду и все связи с подсвеченными нодами
-hilightNode lc (nm, em) tid = undefined
-  {-let hlnodes = (tid, True) : filter (\(id, hl) -> and [id /= tid, hl]) nm --подсвеченные
+hilightNode lc (nm, em) tid = 
+  let hlnodmarks = (tid, True) : filter (\(id, hl) -> and [id /= tid, hl]) nm --маркера подсветки нод
+      hlnodes = fmap (\(id,_) -> id) hlnodmarks          
+      filterEdges (from,to,_) = and [to `elem` hlnodes, from `elem` hlnodes] 
+      fmapEdges (_,_,(id, RelationInGraph ((_,_), (_,_)))) = (id, True)
 
-                
-      hledges = em 
-  in (hlnodes, hledges)     -}
+      hledges = em ++ (fmap fmapEdges $ filter filterEdges $ out lc tid ++ inn lc tid)
+  in (hlnodmarks, hledges)
 
-  
-    
 
-              
 hilightEdge :: LocGraph -> Markers -> EdgeId -> Markers --подсветить ребро, и ноды, которые оно связывает
 hilightEdge = undefined     
 
