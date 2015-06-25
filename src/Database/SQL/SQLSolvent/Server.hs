@@ -49,7 +49,7 @@ startGui = do
 site :: MVar GraphEnv -> Snap ()
 site e_ment =
     ifTop            (serveFile "./static/index.html")          <|>
-    dir "upload"     (filehandler e_ment )  <|> -- >> redirect "canvas"
+    dir "upload"     (filehandler e_ment )                      <|> -- >> redirect "canvas"
     dir "addtables"  (parseAddResponse e_ment)                  <|>
     dir "canvas"     (renderRequest e_ment)                     <|>
   --dir "changemark" ()                                         <|>
@@ -76,7 +76,9 @@ myPerPartPolicy _ = allowWithMaximumSize (maxMb * megaByte)
 buildTabGraSnap :: MonadSnap m => MVar GraphEnv 
     -> [(PartInfo, Either PolicyViolationException FilePath)] 
     -> m ()
-buildTabGraSnap _ ((_,Left _):_) = return ()
+buildTabGraSnap _ ((_,Left exc):_) = do 
+    liftIO $ forkIO $ putStrLn $ show exc 
+    return ()
 buildTabGraSnap e_ment ((_ ,Right filepath):_) = do
   liftIO $ forkIO $ do
     scheme <- redirectScheme filepath
@@ -92,7 +94,7 @@ buildTabGraSnap e_ment ((_ ,Right filepath):_) = do
 parseAddResponse :: MonadSnap m => MVar GraphEnv  -> m ()
 parseAddResponse e_ment  = do
     body <- readRequestBody 100000
-
+    liftIO $ forkIO $ putStrLn $ show body
     case (readMaybe (U.toString body) :: Maybe [String] ) of
         Just tns -> liftIO $ do  
             e <- takeMVar e_ment
@@ -101,6 +103,7 @@ parseAddResponse e_ment  = do
                 mrkrs    = markers e
                 tabnames = fmap T.pack tns
                 new_lc_graph = addNodes gl_graph lc_graph tabnames
+            liftIO $ forkIO $ putStrLn $ show new_lc_graph
             putMVar e_ment $ e {localGraph = new_lc_graph}
         Nothing       -> return ()
         
