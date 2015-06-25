@@ -16,7 +16,7 @@ import Control.Exception
 
 import Data.Graph.Inductive.Graph 
 import Data.Graph.Inductive
-
+import qualified System.IO.Strict as Strict
 
 import Data.Attoparsec.Text
 import qualified Data.Set as S
@@ -43,7 +43,7 @@ tnames graph nodes  = fmap (\node -> case (lab graph node) of
 
 getFile :: FilePath -> IO T.Text
 getFile fp = do
-    file <- readFile fp
+    file <- Strict.readFile fp
     return $ T.pack file 
 
 

@@ -11,16 +11,17 @@ executable solvent
   main-is: Database/SQL/SQLSolvent/Main.hs
 
   build-depends:
-      base
-      , attoparsec
-      , bytestring
-      , utf8-string
-      , text
-      , containers
-      , fgl
-      , snap-server
-      , snap-core
-      , cgi
+                base
+              , attoparsec
+              , bytestring
+              , utf8-string
+              , text
+              , containers
+              , fgl
+              , snap-server
+              , snap-core
+              , cgi
+              , strict
   default-language:    Haskell2010
   
 library
@@ -45,6 +46,7 @@ library
               , snap-server
               , snap-core
               , cgi
+              , strict
 
   default-language:    Haskell2010
 

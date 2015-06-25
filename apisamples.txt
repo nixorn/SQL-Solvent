@@ -1,4 +1,4 @@
--> ["WM_ACTDOCUMENTS"]
+-> "[\"WM_ACTDOCUMENTS\", \"WM_PERSONAL_CARD\"]"
 <- ([(1,"WM_ACTDOCUMENTS", "Документы"), (2, "WM_PERSONAL_CARD", "Личные дела")...],--таблички/ноды
     [(1, 2, (1, ("A_PERSON", "A_OUID")))...],                                       --связи/ребра. 1 число - из какой ноды
                                                                                     --2- в какую, 3 - id связи

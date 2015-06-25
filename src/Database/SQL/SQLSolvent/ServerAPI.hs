@@ -61,16 +61,27 @@ addNodes gl lc tn =
           nodes = fmap (nodeByTableName graph) tbls 
           f (n1, n2, _) = or [n1 `elem` nodes, n2 `elem` nodes]
           
- 
+
+hilightNode :: LocGraph -> Markers -> TableId -> Markers --подсветить ноду и все связи с подсвеченными нодами
+hilightNode lc (nm, em) tid = undefined
+  {-let hlnodes = (tid, True) : filter (\(id, hl) -> and [id /= tid, hl]) nm --подсвеченные
+
+                
+      hledges = em 
+  in (hlnodes, hledges)     -}
+
+  
+    
+
+              
 hilightEdge :: LocGraph -> Markers -> EdgeId -> Markers --подсветить ребро, и ноды, которые оно связывает
 hilightEdge = undefined     
 
-hilightNode :: LocGraph -> Markers -> TableId -> Markers --подсветить ноду и все связи с подсвеченными нодами
-hilightNode = undefined   
 
 unlightEdge :: LocGraph -> Markers -> EdgeId -> Markers  --снять подсветку с ребра, с нод подсветку не снимать
 unlightEdge = undefined    
 
+              
 unlightNode :: LocGraph -> Markers -> TableId -> Markers  --снять подсветку с ноды и всех его ребер
 unlightNode = undefined   
 

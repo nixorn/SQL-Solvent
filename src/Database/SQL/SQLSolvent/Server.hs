@@ -80,7 +80,7 @@ buildTabGraSnap _ ((_,Left exc):_) = do
     liftIO $ forkIO $ putStrLn $ show exc 
     return ()
 buildTabGraSnap e_ment ((_ ,Right filepath):_) = do
-  liftIO $ forkIO $ do
+  liftIO $ do
     scheme <- redirectScheme filepath
     let graph = buildTableGraph scheme
     putStrLn $ show scheme
@@ -122,10 +122,7 @@ renderRequest e_ment = (liftIO $ (do
         fmap renderNode $ labNodes lc_graph,
         fmap renderEdge $ labEdges lc_graph,                                                                                                                 
         mrkrs)))  >>= writeText 
-    {-([(Int, String, String)],
-       [(Int,Int, (1, (String, String)))],   
-       ([(Int, Bool)], [(Int, Bool)]))
-       -}
+
         
         
         
