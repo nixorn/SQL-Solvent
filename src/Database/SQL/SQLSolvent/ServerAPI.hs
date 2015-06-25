@@ -31,11 +31,6 @@ import Database.SQL.SQLSolvent.Functions
 
 
 
- 
-
-
-
-
 addNodes :: GlbGraph -> LocGraph -> [TableName] -> LocGraph --добавление кучки новых нод и ребер ессесно
 addNodes gl lc tn =
     mkGraph (labNodes  lc ++ getNodesForAdd gl tn) (labEdges lc ++ getEdgesForAdd gl tn)
@@ -70,12 +65,10 @@ unlightNode :: LocGraph -> Markers -> TableId -> Markers  --снять подс�
 unlightNode = undefined   
 
 
+type NewLocGraph = LocGraph
+updateMarkers :: LocGraph -> Markers -> NewLocGraph -> Markers
+updateMarkers lc mrks nlc = undefined
 
-
---тут мы строим тело респонса
-
-renderRequest :: LocGraph -> Markers -> String
-renderRequest lc markers = undefined
 
 
 

@@ -48,10 +48,11 @@ startGui = do
 
 site :: MVar GraphEnv -> Snap ()
 site e_ment =
-    ifTop            (serveFile "./static/index.html") <|>
-    dir "upload"     (filehandler e_ment)              <|> 
-    dir "addtables"  (parseAddResponse e_ment)         <|>
-    --dir "changemark" ()                                <|>
+    ifTop            (serveFile "./static/index.html")          <|>
+    dir "upload"     (filehandler e_ment )  <|> -- >> redirect "canvas"
+    dir "addtables"  (parseAddResponse e_ment)                  <|>
+    dir "canvas"     (renderRequest e_ment)                     <|>
+  --dir "changemark" ()                                         <|>
     dir "static"    (serveDirectory "./static")
    
 ----------получаем файл от юзера
@@ -103,6 +104,24 @@ parseAddResponse e_ment  = do
             putMVar e_ment $ e {localGraph = new_lc_graph}
         Nothing       -> return ()
         
+--тут мы строим тело респонса. глобальную переменную не меняем. 
+
+renderRequest :: MonadSnap m => MVar GraphEnv -> m ()
+renderRequest e_ment = (liftIO $ (do
+    e <- takeMVar e_ment
+    forkIO $ putMVar e_ment e 
+    let lc_graph = localGraph e
+        mrkrs    = markers e
+        renderNode (id, Table name descr _) = (id, T.unpack name, T.unpack descr)
+        renderEdge (from,to, (id, RelationInGraph ((_,fromName), (_,toName)))) = (from,to, (id, (fromName,toName)))
+    return $ T.pack $ show (
+        fmap renderNode $ labNodes lc_graph,
+        fmap renderEdge $ labEdges lc_graph,                                                                                                                 
+        mrkrs)))  >>= writeText 
+    {-([(Int, String, String)],
+       [(Int,Int, (1, (String, String)))],   
+       ([(Int, Bool)], [(Int, Bool)]))
+       -}
         
         
         
