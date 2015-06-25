@@ -45,7 +45,17 @@ addNodes gl lc tn =
             inSurround nds (nd, _) = nd `elem` nds
               
         in filter (inSurround surround) $ labNodes graph ++ getNodesForAdd graph ts
+      getNodesForAdd graph (t: []) = 
+        let node = nodeByTableName graph t
+            surround = node : neighbors graph node --таблица плюс все соседние
+              
+            inSurround :: [TableId] -> LNode Table -> Bool
+            inSurround nds (nd, _) = nd `elem` nds
+        in filter (inSurround surround) $ labNodes graph
 
+      getNodesForAdd graph [] = [] 
+
+           
       getEdgesForAdd :: GlbGraph -> [TableName] -> [LEdge RelWIthId]
       getEdgesForAdd graph tbls = filter f $ labEdges graph where
           nodes = fmap (nodeByTableName graph) tbls 

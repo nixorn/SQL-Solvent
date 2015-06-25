@@ -83,6 +83,7 @@ buildTabGraSnap e_ment ((_ ,Right filepath):_) = do
   liftIO $ forkIO $ do
     scheme <- redirectScheme filepath
     let graph = buildTableGraph scheme
+    putStrLn $ show scheme
     e <- takeMVar e_ment
     putMVar e_ment $ e {globalGraph = graph}
   return ()

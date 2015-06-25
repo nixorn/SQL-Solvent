@@ -145,8 +145,11 @@ buildTableGraph scheme =
         getAllEdges nodes = L.concat $ fmap (getNodeEdges nodes)  nodes
 
         packEdges :: [LEdge RelationInGraph] -> [Int] -> [LEdge RelWIthId]
+        packEdges []  (i:intes) =  []
+        packEdges ((node1, node2, des):[])  (i:intes) =  [(node1, node2, (i, des))]
         packEdges ((node1, node2, des):rs)  (i:intes) =  (node1, node2, (i, des)): (packEdges rs intes)
-                                         
+
+                                                         
     in  mkGraph nodes $ packEdges (getAllEdges nodes) [1..]
 
 buildTableGraph' a  = undir $ buildTableGraph a  --ненаправленный
