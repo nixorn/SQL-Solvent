@@ -120,7 +120,7 @@ renderRequest e_ment = (liftIO $ (do
         mrkrs    = markers e
         renderNode (id, Table name descr _) = "[" ++ show id ++ "," ++ T.unpack name ++ "," ++ T.unpack descr ++ "]"
         renderEdge (from,to, (id, RelationInGraph ((_,fromName), (_,toName)))) = 
-            "[" ++ show from ++ "," ++ show to ++ ",[" ++ show id ++ ",[" ++ T.unpack fromName ++ T.unpack toName ++ "]]]"
+            "[" ++ show from ++ "," ++ show to ++ ",[" ++ show id ++ ",[" ++ T.unpack fromName ++ "," ++ T.unpack toName ++ "]]]"
         
         renderMark ([], []) = "[[],[]]" 
         renderMark ([], edges) = "[" 
