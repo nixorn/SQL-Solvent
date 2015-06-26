@@ -121,10 +121,19 @@ renderRequest e_ment = (liftIO $ (do
         renderEdge (from,to, (id, RelationInGraph ((_,fromName), (_,toName)))) = 
             "[" ++ show from ++ "," ++ show to ++ ",[" ++ show id ++ ",[" ++ T.unpack fromName ++ T.unpack toName ++ "]]]"
         
+        renderMark ([], []) = "[[[]],[[]]]" 
+        renderMark ([], edges) = "[" 
+            ++ "[[]]," 
+            ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") edges) ++ "]" ++ "]"
+        renderMark (nodes, []) = "[" 
+            ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") nodes) ++ "]" ++ "," 
+            ++ "[[]]]"
         renderMark (nodes, edges) = "[" 
             ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") nodes) ++ "]" ++ "," 
             ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") edges) ++ "]" ++ "]"
-        render [a] = foldl1 (\a b -> a ++ "," ++ b)  [a]
+        
+        render [] = []      
+        render list = foldl1 (\a b -> a ++ "," ++ b)  list
         
     return $ T.pack $ "[" ++
         "[" ++ (render $ fmap renderNode $ labNodes lc_graph) ++ "]" ++ "," ++
