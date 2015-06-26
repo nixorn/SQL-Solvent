@@ -90,7 +90,12 @@ unlightEdge lc (nm, em) eid =
 
               
 unlightNode :: LocGraph -> Markers -> TableId -> Markers  --снять подсветку с ноды и всех его ребер
-unlightNode = undefined   
+unlightNode lc (nm, em) tid   = 
+    let hlnodmarks = (tid, False) : filter (\(id, hl) -> and [id /= tid, hl]) nm --маркера подсветки нод
+        fmapEdges (_,_,(id, RelationInGraph ((_,_), (_,_)))) = (id, False)
+        unlightEdges = (fmap fmapEdges $ out lc tid ++ inn lc tid)
+        hledgmarks = filter (\(e,m) -> not $ e `elem` (fmap (\(e, _) -> e ) unlightEdges)  ) em ++ unlightEdges
+  in (hlnodmarks, hledgmarks)
 
 
 type NewLocGraph = LocGraph
