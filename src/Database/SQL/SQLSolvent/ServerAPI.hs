@@ -69,16 +69,24 @@ hilightNode lc (nm, em) tid =
       filterEdges (from,to,_) = and [to `elem` hlnodes, from `elem` hlnodes] 
       fmapEdges (_,_,(id, RelationInGraph ((_,_), (_,_)))) = (id, True)
 
-      hledges = em ++ (fmap fmapEdges $ filter filterEdges $ out lc tid ++ inn lc tid)
-  in (hlnodmarks, hledges)
+      hledgmarks = em ++ (fmap fmapEdges $ filter filterEdges $ out lc tid ++ inn lc tid)
+  in (hlnodmarks, hledgmarks)
 
 
 hilightEdge :: LocGraph -> Markers -> EdgeId -> Markers --подсветить ребро, и ноды, которые оно связывает
-hilightEdge = undefined     
+hilightEdge lc (nm, em) eid = 
+    let hledgmarks = (eid, True) : filter (\(id, hl) -> and [id /= eid, hl]) em --маркера подсветки ребер
+        edge = head $ filter (\(_,_,(id, _)) -> id == eid ) $ (labEdges lc)
+        n1 = (\(n1,_,_) -> n1) edge 
+        n2 = (\(_,n2,_) -> n2) edge
+    in  hilightNode lc  ( hilightNode lc (nm, hledgmarks) n1) n2 
 
 
 unlightEdge :: LocGraph -> Markers -> EdgeId -> Markers  --снять подсветку с ребра, с нод подсветку не снимать
-unlightEdge = undefined    
+unlightEdge lc (nm, em) eid =
+    let hledgmarks = (eid, False) : filter (\(id, hl) -> and [id /= eid, hl]) em --маркера подсветки ребер
+        
+    in  (nm, hledgmarks )
 
               
 unlightNode :: LocGraph -> Markers -> TableId -> Markers  --снять подсветку с ноды и всех его ребер

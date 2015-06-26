@@ -5,6 +5,7 @@ module Database.SQL.SQLSolvent.IOFunctions (
     ,tnames
     ,redirectScheme
     ,getFile
+    ,    csvFile
 
     
 ) where

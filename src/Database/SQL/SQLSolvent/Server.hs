@@ -53,7 +53,8 @@ site e_ment =
     dir "upload"     (filehandler e_ment )                      <|> -- >> redirect "canvas"
     dir "addtables"  (parseAddResponse e_ment)                  <|>
     dir "canvas"     (renderRequest e_ment)                     <|>
-  --dir "changemark" ()                                         <|>
+    --dir "unlight"                                               <|>
+    --dir "light"                                                 <|>
     dir "static"    (serveDirectory "./static")
    
 ----------получаем файл от юзера
@@ -121,7 +122,7 @@ renderRequest e_ment = (liftIO $ (do
         renderEdge (from,to, (id, RelationInGraph ((_,fromName), (_,toName)))) = 
             "[" ++ show from ++ "," ++ show to ++ ",[" ++ show id ++ ",[" ++ T.unpack fromName ++ T.unpack toName ++ "]]]"
         
-        renderMark ([], []) = "[[[]],[[]]]" 
+        renderMark ([], []) = "[[],[]]" 
         renderMark ([], edges) = "[" 
             ++ "[[]]," 
             ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") edges) ++ "]" ++ "]"
