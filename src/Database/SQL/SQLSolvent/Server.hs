@@ -117,12 +117,20 @@ renderRequest e_ment = (liftIO $ (do
     forkIO $ putMVar e_ment e 
     let lc_graph = localGraph e
         mrkrs    = markers e
-        renderNode (id, Table name descr _) = (id, encodeUtf8 name, encodeUtf8 descr)
-        renderEdge (from,to, (id, RelationInGraph ((_,fromName), (_,toName)))) = (from,to, (id, (fromName,toName)))
-    return $ T.pack $ show (
-        fmap renderNode $ labNodes lc_graph,
-        fmap renderEdge $ labEdges lc_graph,                                                                                                                 
-        mrkrs)))  >>= writeText 
+        renderNode (id, Table name descr _) = "[" ++ show id ++ "," ++ T.unpack name ++ "," ++ T.unpack descr ++ "]"
+        renderEdge (from,to, (id, RelationInGraph ((_,fromName), (_,toName)))) = 
+            "[" ++ show from ++ "," ++ show to ++ ",[" ++ show id ++ ",[" ++ T.unpack fromName ++ T.unpack toName ++ "]]]"
+        
+        renderMark (nodes, edges) = "[" 
+            ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") nodes) ++ "]" ++ "," 
+            ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") edges) ++ "]" ++ "]"
+        render [a] = foldl1 (\a b -> a ++ "," ++ b)  [a]
+        
+    return $ T.pack $ "[" ++
+        "[" ++ (render $ fmap renderNode $ labNodes lc_graph) ++ "]" ++ "," ++
+        "[" ++ (render $ fmap renderEdge $ labEdges lc_graph) ++ "]" ++ "," ++ 
+        "[" ++ renderMark mrkrs ++ "]" 
+        ++ "]"))  >>= writeText 
 
         
         
