@@ -164,8 +164,8 @@ handleHilight e_ment =  do
       Nothing -> return ()
 
 
-handleUnlight :: MonadSnap m => MVar GraphEnv -> m ()
-handleUnlight e_ment =  do
+handleDelete :: MonadSnap m => MVar GraphEnv -> m ()
+handleDelete e_ment =  do
     body <- readRequestBody 100000
     case (readMaybe (U.toString body) :: Maybe [[Int]]  ) of --на самом деле тут должно быть хотябы ([Int], [Int]), но мы json+хардкодинг.
       Just todel -> 
@@ -187,8 +187,8 @@ handleUnlight e_ment =  do
 
 
 
-handleDelete :: MonadSnap m => MVar GraphEnv -> m ()
-handleDelete e_ment =  do
+handleUnlight :: MonadSnap m => MVar GraphEnv -> m ()
+handleUnlight e_ment =  do
     body <- readRequestBody 100000
     case (readMaybe (U.toString body) :: Maybe [[Int]]  ) of --на самом деле тут должно быть хотябы ([Int], [Int]), но мы json+хардкодинг.
       Just chngmark -> 
