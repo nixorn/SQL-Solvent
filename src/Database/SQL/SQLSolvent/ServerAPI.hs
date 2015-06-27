@@ -12,6 +12,7 @@ module Database.SQL.SQLSolvent.ServerAPI (
 
 {-
 что может быть в реквесте и что должно быть в респонсе?
+
 реквест                                     респонс
 массив с именами  таблиц                    массив с именами, номерами таблиц и их окрестностями(глубина =1)
                                             ,связями между ними,  маркерами подсветки таблиц и связей
@@ -27,7 +28,7 @@ import Database.SQL.SQLSolvent.Functions
 import qualified Data.ByteString as BS
 import qualified Data.Text as T
 import qualified Data.List as L
-import Data.Graph.Inductive 
+import Data.Graph.Inductive as G
 import Database.SQL.SQLSolvent.Functions
 
 
@@ -65,7 +66,17 @@ addNodes gl lc tn =
       getEdgesForAdd graph tbls = filter f $ labEdges graph where
           nodes = fmap (nodeByTableName graph) tbls 
           f (n1, n2, _) = or [n1 `elem` nodes, n2 `elem` nodes]
-          
+    
+delUnwantMarkers :: Markers -> LocGraph -> Markers
+delUnwantMarkers  = undefined
+                    
+delNodes' :: LocGraph -> [TableId] -> LocGraph
+delNodes' lc tables =
+  let withoutUnwantNodes = delNodes tables lc
+  in  delEdges (filter (\(n1,n2) -> or [n1 `elem` tables, n2 `elem` tables]) $ edges lc) withoutUnwantNodes
+
+delEdges' :: LocGraph -> [EdgeId] -> LocGraph
+delEdges' = undefined
 
 hilightNodes :: LocGraph -> Markers -> [TableId] -> Markers --подсветить ноду и все связи с подсвеченными нодами
 hilightNodes _ mrkrs [] = mrkrs
