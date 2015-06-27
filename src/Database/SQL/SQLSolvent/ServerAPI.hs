@@ -37,8 +37,8 @@ import Database.SQL.SQLSolvent.Functions
 
 addNodes :: GlbGraph -> LocGraph -> [TableName] -> LocGraph --добавление кучки новых нод и ребер ессесно
 addNodes gl lc tn =
-    mkGraph (labNodes  lc ++ getNodesForAdd gl tn)
-                (labEdges lc ++ getEdgesForAdd gl tn)
+    mkGraph ( L.nub $ labNodes  lc ++ getNodesForAdd gl tn)
+                (L.nub $ labEdges lc ++ getEdgesForAdd gl tn)
     where
 
       getNodesForAdd :: GlbGraph -> [TableName] -> [LNode Table]
@@ -49,9 +49,9 @@ addNodes gl lc tn =
             inSurround :: [TableId] -> LNode Table -> Bool
             inSurround nds (nd, _) = nd `elem` nds
 
-            notIn graph node = not . ( node `elem`) $ labNodes graph
+
                                
-        in filter (notIn graph) . filter (inSurround surround) $ labNodes graph ++ getNodesForAdd graph ts
+        in filter (inSurround surround) $ labNodes graph ++ getNodesForAdd graph ts
            
       getNodesForAdd graph (t: []) = 
         let node = nodeByTableName graph t
