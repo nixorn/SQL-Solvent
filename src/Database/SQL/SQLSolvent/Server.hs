@@ -144,36 +144,40 @@ renderRequest e_ment =
                 ++ "]"))  >>= writeText 
 
 handleHilight :: MonadSnap m => MVar GraphEnv -> m ()
-handleHilight e_ment = undefined
-
-
-handleUnlight :: MonadSnap m => MVar GraphEnv -> m ()
-handleUnlight e_ment =  undefined {-do
+handleHilight e_ment =  do
     body <- readRequestBody 100000
     case (readMaybe (U.toString body) :: Maybe [[Int]]  ) of --на самом деле тут должно быть хотябы ([Int], [Int]), но мы json+хардкодинг.
       Just chngmark -> 
-          (liftIO $ do
-             e <- takeMVar e_ment
-             let lc = localGraph e
-                 mrkrs = markers e
-                 nodemarkchg = chngmark !! 0
-                 edgemarkchg = chngmark !! 1
+          case (length chngmark == 2 ) of
+            True -> (liftIO $ do
+                       e <- takeMVar e_ment
+                       let lc = localGraph e
+                           mrkrs = markers e
+                           nodemarkchg = chngmark !! 0
+                           edgemarkchg = chngmark !! 1 
+                       putMVar e_ment $  e {markers = hilightEdges lc  (hilightNodes lc mrkrs nodemarkchg) edgemarkchg}) >> return ()
+                          
+            False -> return ()
+      Nothing -> return ()
 
-                 rebuildN :: [Markers] -> NodeMarkers
-                 rebuildN [] = []
-                 rebuildN m = fmap (\(nodes1, _) (nodes2, _) -> nodes1 ++ nodes2 ) m
 
-                 rebuildE :: [Markers] -> EdgeMarkers
-                 rebuildE [] = []
-                 rebuildE m = fmap (\(_, edges1) (_, edges2) -> edges1 ++ edges2 ) m
-                               
-             putMVar e_ment $  e {markers =  }
-                                    ) >> return ()
-
-      Nothing -> do
-
-        return ()
+handleUnlight :: MonadSnap m => MVar GraphEnv -> m ()
+handleUnlight e_ment =  do
+    body <- readRequestBody 100000
+    case (readMaybe (U.toString body) :: Maybe [[Int]]  ) of --на самом деле тут должно быть хотябы ([Int], [Int]), но мы json+хардкодинг.
+      Just chngmark -> 
+          case (length chngmark == 2 ) of
+            True -> (liftIO $ do
+                       e <- takeMVar e_ment
+                       let lc = localGraph e
+                           mrkrs = markers e
+                           nodemarkchg = chngmark !! 0
+                           edgemarkchg = chngmark !! 1 
+                       putMVar e_ment $  e {markers = unlightEdges lc  (unlightNodes lc mrkrs nodemarkchg) edgemarkchg}) >> return ()
+                          
+            False -> return ()
+      Nothing -> return ()
     
 
 
--}
+

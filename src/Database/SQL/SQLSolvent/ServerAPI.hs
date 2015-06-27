@@ -67,6 +67,7 @@ addNodes gl lc tn =
           
 
 hilightNodes :: LocGraph -> Markers -> [TableId] -> Markers --подсветить ноду и все связи с подсвеченными нодами
+hilightNodes _ mrkrs [] = mrkrs
 hilightNodes lc (nm, em) tids = 
   let hlnodmarks = (zip tids $ repeat True ) ++ filter (\(tid, _) -> not $ tid `elem` tids) nm --маркера подсветки нод
       hlnodes = fmap (\(id,_) -> id) hlnodmarks          
@@ -78,6 +79,7 @@ hilightNodes lc (nm, em) tids =
 
 
 hilightEdges :: LocGraph -> Markers -> [EdgeId] -> Markers --подсветить ребрa, и ноды, которые они связывают
+hilightEdges _ mrkrs [] = mrkrs
 hilightEdges lc (nm, em) eids = 
     let hledgmarks = (zip eids $ repeat True) ++  filter (\(eid, _) -> not $ eid `elem` eids) em --маркера подсветки ребер
         --забрать ребра, схлопнуть ребра в список айди, нод соединяемых ребрами, удалить дубликаты 
@@ -87,6 +89,7 @@ hilightEdges lc (nm, em) eids =
 
 
 unlightEdges :: LocGraph -> Markers -> [EdgeId] -> Markers  --снять подсветку с ребер, с нод подсветку не снимать
+unlightEdges _ mrkrs [] = mrkrs
 unlightEdges lc (nm, em) eids =
     let hledgmarks = (zip eids $ repeat False) ++ filter (\(eid, _) -> not $ eid `elem` eids) em --маркера подсветки ребер
         
@@ -94,8 +97,8 @@ unlightEdges lc (nm, em) eids =
 
               
 unlightNodes :: LocGraph -> Markers -> [TableId] -> Markers  --снять подсветку с нод и всех их ребер
+unlightNodes _ mrkrs [] = mrkrs
 unlightNodes lc (nm, em) tids  =
-    
     let hledgmarks = snd
                      $ unlightEdges lc (nm, em)     -- отсветить ноды по id
                      $ fmap (\(_,_,(eid,_)) -> eid) -- забрать id нод
