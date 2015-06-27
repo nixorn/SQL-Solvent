@@ -61,8 +61,8 @@ instance Show From where
 
 data Join       = LeftJoin TableName [Clause]  | InnerJoin TableName [Clause]
 instance Show Join where
-    show (LeftJoin  t clauses) = "LEFT JOIN "  ++ T.unpack t ++ " on " ++ L.foldl1 (++) (fmap show clauses) 
-    show (InnerJoin t clauses) = "INNER JOIN " ++ T.unpack t ++ " on " ++ L.foldl1 (++) (fmap show clauses) 
+ show (LeftJoin  t clauses) = "LEFT JOIN "  ++ T.unpack t ++ " on " ++ L.foldl1 (++) (fmap show clauses) 
+ show (InnerJoin t clauses) = "INNER JOIN " ++ T.unpack t ++ " on " ++ L.foldl1 (++) (fmap show clauses) 
 
 
 

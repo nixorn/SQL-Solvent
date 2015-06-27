@@ -37,7 +37,8 @@ import Database.SQL.SQLSolvent.Functions
 
 addNodes :: GlbGraph -> LocGraph -> [TableName] -> LocGraph --добавление кучки новых нод и ребер ессесно
 addNodes gl lc tn =
-    mkGraph (labNodes  lc ++ getNodesForAdd gl tn) (labEdges lc ++ getEdgesForAdd gl tn)
+    mkGraph (labNodes  lc ++ getNodesForAdd gl tn)
+                (labEdges lc ++ getEdgesForAdd gl tn)
     where
 
       getNodesForAdd :: GlbGraph -> [TableName] -> [LNode Table]
@@ -47,8 +48,11 @@ addNodes gl lc tn =
               
             inSurround :: [TableId] -> LNode Table -> Bool
             inSurround nds (nd, _) = nd `elem` nds
-              
-        in filter (inSurround surround) $ labNodes graph ++ getNodesForAdd graph ts
+
+            notIn graph node = not . ( node `elem`) $ labNodes graph
+                               
+        in filter (notIn graph) . filter (inSurround surround) $ labNodes graph ++ getNodesForAdd graph ts
+           
       getNodesForAdd graph (t: []) = 
         let node = nodeByTableName graph t
             surround = node : neighbors graph node --таблица плюс все соседние
@@ -107,11 +111,6 @@ unlightNodes lc (nm, em) tids  =
         hlnodmarks = (zip tids $ repeat False) ++ filter (\(tid, _) -> not $ tid `elem` tids) nm --маркера подсветки нод
 
     in (hlnodmarks, hledgmarks)
-
-
-
-
-
 
 
 nodeByTableName :: Gr Table RelWIthId -> TableName -> Int
