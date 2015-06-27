@@ -11,7 +11,7 @@ module Database.SQL.SQLSolvent.Functions (
 ) where
 
 import Database.SQL.SQLSolvent.Types
-import Database.SQL.SQLSolvent.NaiveSqlTypes
+
 
 import Prelude hiding (concat, takeWhile)
 import Control.Applicative ((<$>), (<|>), (<*>), (<*), (*>), many)

@@ -22,7 +22,6 @@ module Database.SQL.SQLSolvent.ServerAPI (
 -}
 
 import Database.SQL.SQLSolvent.Types
-import Database.SQL.SQLSolvent.NaiveSqlTypes
 import Database.SQL.SQLSolvent.Functions
 
 import qualified Data.ByteString as BS
@@ -48,8 +47,6 @@ addNodes gl lc tn =
               
             inSurround :: [TableId] -> LNode Table -> Bool
             inSurround nds (nd, _) = nd `elem` nds
-
-
                                
         in filter (inSurround surround) $ labNodes graph ++ getNodesForAdd graph ts
            

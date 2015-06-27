@@ -50,12 +50,14 @@ startGui = do
 site :: MVar GraphEnv -> Snap ()
 site e_ment =
     ifTop            (serveFile "./static/index.html")          <|>
-    dir "upload"     (filehandler e_ment )                      <|> -- >> redirect "canvas"
+    dir "static"     (serveDirectory "./static")                <|>
+    dir "upload"     (filehandler      e_ment )                 <|> -- >> redirect "canvas"
     dir "addtables"  (parseAddResponse e_ment)                  <|>
-    dir "canvas"     (renderRequest e_ment)                     <|>
-    dir "unlight"    (handleUnlight e_ment)                     <|>
-    dir "hilight"    (handleHilight e_ment)                     <|>
-    dir "static"     (serveDirectory "./static")
+    dir "canvas"     (renderRequest    e_ment)                  <|>
+    dir "unlight"    (handleUnlight    e_ment)                  <|>
+    dir "hilight"    (handleHilight    e_ment)                  -- <|>
+--    dir "rendersql"  (renderSql        e_ment)
+
    
 ----------получаем файл от юзера
 --то, что в итоге тянет файл

@@ -30,7 +30,7 @@ library
     Database.SQL.SQLSolvent.IOFunctions
     , Database.SQL.SQLSolvent.Functions
     , Database.SQL.SQLSolvent.Types
-    , Database.SQL.SQLSolvent.NaiveSqlTypes
+    , Database.SQL.SQLSolvent.NaiveSql
     , Database.SQL.SQLSolvent.Server
     , Database.SQL.SQLSolvent.ServerAPI
      

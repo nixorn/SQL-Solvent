@@ -63,6 +63,8 @@ type Scheme = S.Set Table --типа база
 
 data RelationInGraph = RelationInGraph ((TableName, FieldName),(TableName, FieldName)) deriving (Eq, Ord, Show)
 
+ 
+
 type RelWIthId = (Int, RelationInGraph)
 
 --сделано чтобы присвоить вес ребрам. вес ребра - еденица.
