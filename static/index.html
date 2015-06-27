@@ -3,16 +3,20 @@
     <head>
         <meta charset="utf-8">
         <title>Для начала загрузи файл</title>
+        <link rel="stylesheet" type="text/css" href="static/css/main.css">
         <script type="text/javascript" src="static/js/jquery-2.1.4.min.js"></script>
         <script type="text/javascript" src="static/js/d3.min.js"></script>
         <script type="text/javascript" src="static/js/jsonlite.js"></script>
         <script type="text/javascript" src="static/js/app.js"></script>
     </head>
 <body>
-    <form action="upload" method="post" enctype="multipart/form-data">
-    Select file to upload:
-        <input type="file" name="fileToUpload" id="fileToUpload">
-        <input type="submit" value="Upload CSV" name="submit">
-    </form>
+    <div class="status">Choose file</div>
+    <input type="file" name="fileToUpload" id="fileToUpload">
+    <button id="upload">Upload</button>
+    <br>
+    <div class="header" style="margin: 30px auto 10px;">Operations</div>
+    <input id="requested-table" type="text" value="WM_TICKETS">
+    <button id="ask">Ask for linked nodes</button>
+    <div class="output">Nothing</div>
 </body>
 </html>
