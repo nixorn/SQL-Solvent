@@ -55,7 +55,8 @@ site e_ment =
     dir "addtables"  (parseAddResponse e_ment)                  <|>
     dir "canvas"     (renderRequest    e_ment)                  <|>
     dir "unlight"    (handleUnlight    e_ment)                  <|>
-    dir "hilight"    (handleHilight    e_ment)                  -- <|>
+    dir "hilight"    (handleHilight    e_ment)                  <|>
+    dir "delete"     (handleDelete     e_ment)
 --    dir "rendersql"  (renderSql        e_ment)
 
    
@@ -165,6 +166,29 @@ handleHilight e_ment =  do
 
 handleUnlight :: MonadSnap m => MVar GraphEnv -> m ()
 handleUnlight e_ment =  do
+    body <- readRequestBody 100000
+    case (readMaybe (U.toString body) :: Maybe [[Int]]  ) of --на самом деле тут должно быть хотябы ([Int], [Int]), но мы json+хардкодинг.
+      Just todel -> 
+          case (length todel == 2 ) of
+            True -> (liftIO $ do
+                       e <- takeMVar e_ment
+                       let lc = localGraph e
+                           mrkrs = markers e
+                           nodedel = todel !! 0
+                           edgedel = todel !! 1
+                           
+                       putMVar e_ment $  e {localGraph = delEdges' (delNodes' lc nodedel) edgedel}
+                                           --,  markers =
+                                           ) >> return ()
+                          
+            False -> return ()
+      Nothing -> return ()
+    
+
+
+
+handleDelete :: MonadSnap m => MVar GraphEnv -> m ()
+handleDelete e_ment =  do
     body <- readRequestBody 100000
     case (readMaybe (U.toString body) :: Maybe [[Int]]  ) of --на самом деле тут должно быть хотябы ([Int], [Int]), но мы json+хардкодинг.
       Just chngmark -> 

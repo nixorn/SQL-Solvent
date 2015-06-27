@@ -8,6 +8,8 @@ module Database.SQL.SQLSolvent.ServerAPI (
     ,hilightEdges
     ,unlightEdges
     ,unlightNodes
+    ,delNodes'
+    ,delEdges'
 ) where
 
 {-
@@ -71,12 +73,14 @@ delUnwantMarkers :: Markers -> LocGraph -> Markers
 delUnwantMarkers  = undefined
                     
 delNodes' :: LocGraph -> [TableId] -> LocGraph
+delNodes' lc [] = lc
 delNodes' lc tables =
   let withoutUnwantNodes = delNodes tables lc
   in  delEdges (filter (\(n1,n2) -> or [n1 `elem` tables, n2 `elem` tables]) $ edges lc) withoutUnwantNodes
 
 delEdges' :: LocGraph -> [EdgeId] -> LocGraph
-delEdges' = undefined
+delEdges' lc [] = lc
+delEdges' lc edges = mkGraph (labNodes lc) (filter (\(_,_,(eid,_)) -> not $ eid `elem` edges)  $ labEdges lc)
 
 hilightNodes :: LocGraph -> Markers -> [TableId] -> Markers --подсветить ноду и все связи с подсвеченными нодами
 hilightNodes _ mrkrs [] = mrkrs
