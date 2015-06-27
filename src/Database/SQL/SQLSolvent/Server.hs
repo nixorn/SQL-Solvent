@@ -53,9 +53,9 @@ site e_ment =
     dir "upload"     (filehandler e_ment )                      <|> -- >> redirect "canvas"
     dir "addtables"  (parseAddResponse e_ment)                  <|>
     dir "canvas"     (renderRequest e_ment)                     <|>
-    --dir "unlight"                                               <|>
-    --dir "light"                                                 <|>
-    dir "static"    (serveDirectory "./static")
+    dir "unlight"    (handleUnlight e_ment)                     <|>
+    dir "hilight"    (handleHilight e_ment)                     <|>
+    dir "static"     (serveDirectory "./static")
    
 ----------получаем файл от юзера
 --то, что в итоге тянет файл
@@ -112,36 +112,68 @@ parseAddResponse e_ment  = do
         
 --тут мы строим тело респонса. глобальную переменную не меняем. 
 
+--TODO: доделать нафиг нормально. Либо через инстанс show либо библиотекой, либо заставить интерфейсников
 renderRequest :: MonadSnap m => MVar GraphEnv -> m ()
-renderRequest e_ment = (liftIO $ (do
-    e <- takeMVar e_ment
-    forkIO $ putMVar e_ment e 
-    let lc_graph = localGraph e
-        mrkrs    = markers e
-        renderNode (id, Table name descr _) = "[" ++ show id ++ "," ++ T.unpack name ++ "," ++ T.unpack descr ++ "]"
-        renderEdge (from,to, (id, RelationInGraph ((_,fromName), (_,toName)))) = 
-            "[" ++ show from ++ "," ++ show to ++ ",[" ++ show id ++ ",[" ++ T.unpack fromName ++ "," ++ T.unpack toName ++ "]]]"
+renderRequest e_ment =
+    (liftIO $ (do
+     e <- takeMVar e_ment
+     putMVar e_ment e 
+     let lc_graph = localGraph e
+         mrkrs    = markers e
+         renderNode (id, Table name descr _) = "[" ++ show id ++ "," ++ T.unpack name ++ "," ++ T.unpack descr ++ "]"
+         renderEdge (from,to, (id, RelationInGraph ((_,fromName), (_,toName)))) = 
+             "[" ++ show from ++ "," ++ show to ++ ",[" ++ show id ++ ",[" ++ T.unpack fromName ++ "," ++ T.unpack toName ++ "]]]"
         
-        renderMark ([], []) = "[[],[]]" 
-        renderMark ([], edges) = "[" 
-            ++ "[[]]," 
-            ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") edges) ++ "]" ++ "]"
-        renderMark (nodes, []) = "[" 
-            ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") nodes) ++ "]" ++ "," 
-            ++ "[[]]]"
-        renderMark (nodes, edges) = "[" 
-            ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") nodes) ++ "]" ++ "," 
-            ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") edges) ++ "]" ++ "]"
+         renderMark ([], []) = "[[],[]]" 
+         renderMark ([], edges) = "[[[]]," 
+              ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") edges) ++ "]" ++ "]"
+         renderMark (nodes, []) = "[["
+              ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") nodes) ++ "]" ++ "," 
+              ++ "[[]]]"
+         renderMark (nodes, edges) = "[" 
+              ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") nodes) ++ "]" ++ "," 
+              ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") edges) ++ "]" ++ "]"
         
-        render [] = []      
-        render list = foldl1 (\a b -> a ++ "," ++ b)  list
+         render [] = []      
+         render list = foldl1 (\a b -> a ++ "," ++ b)  list
         
-    return $ T.pack $ "[" ++
-        "[" ++ (render $ fmap renderNode $ labNodes lc_graph) ++ "]" ++ "," ++
-        "[" ++ (render $ fmap renderEdge $ labEdges lc_graph) ++ "]" ++ "," ++ 
-        "[" ++ renderMark mrkrs ++ "]" 
-        ++ "]"))  >>= writeText 
+     return $ T.pack $ "[" ++
+               "[" ++ (render $ fmap renderNode $ labNodes lc_graph) ++ "]" ++ "," ++
+               "[" ++ (render $ fmap renderEdge $ labEdges lc_graph) ++ "]" ++ "," ++ 
+               "[" ++ renderMark mrkrs ++ "]" 
+                ++ "]"))  >>= writeText 
 
-        
-        
-        
+handleHilight :: MonadSnap m => MVar GraphEnv -> m ()
+handleHilight e_ment = undefined
+
+
+handleUnlight :: MonadSnap m => MVar GraphEnv -> m ()
+handleUnlight e_ment =  undefined {-do
+    body <- readRequestBody 100000
+    case (readMaybe (U.toString body) :: Maybe [[Int]]  ) of --на самом деле тут должно быть хотябы ([Int], [Int]), но мы json+хардкодинг.
+      Just chngmark -> 
+          (liftIO $ do
+             e <- takeMVar e_ment
+             let lc = localGraph e
+                 mrkrs = markers e
+                 nodemarkchg = chngmark !! 0
+                 edgemarkchg = chngmark !! 1
+
+                 rebuildN :: [Markers] -> NodeMarkers
+                 rebuildN [] = []
+                 rebuildN m = fmap (\(nodes1, _) (nodes2, _) -> nodes1 ++ nodes2 ) m
+
+                 rebuildE :: [Markers] -> EdgeMarkers
+                 rebuildE [] = []
+                 rebuildE m = fmap (\(_, edges1) (_, edges2) -> edges1 ++ edges2 ) m
+                               
+             putMVar e_ment $  e {markers =  }
+                                    ) >> return ()
+
+      Nothing -> do
+
+        return ()
+    
+
+
+-}

@@ -4,6 +4,10 @@ module Database.SQL.SQLSolvent.ServerAPI (
     ,tableNameByNode
     ,findEdgesOnNodes
     ,addNodes
+    ,hilightNodes
+    ,hilightEdges
+    ,unlightEdges
+    ,unlightNodes
 ) where
 
 {-
@@ -62,45 +66,47 @@ addNodes gl lc tn =
           f (n1, n2, _) = or [n1 `elem` nodes, n2 `elem` nodes]
           
 
-hilightNode :: LocGraph -> Markers -> TableId -> Markers --подсветить ноду и все связи с подсвеченными нодами
-hilightNode lc (nm, em) tid = 
-  let hlnodmarks = (tid, True) : filter (\(id, hl) -> and [id /= tid, hl]) nm --маркера подсветки нод
+hilightNodes :: LocGraph -> Markers -> [TableId] -> Markers --подсветить ноду и все связи с подсвеченными нодами
+hilightNodes lc (nm, em) tids = 
+  let hlnodmarks = (zip tids $ repeat True ) ++ filter (\(tid, _) -> not $ tid `elem` tids) nm --маркера подсветки нод
       hlnodes = fmap (\(id,_) -> id) hlnodmarks          
       filterEdges (from,to,_) = and [to `elem` hlnodes, from `elem` hlnodes] 
       fmapEdges (_,_,(id, RelationInGraph ((_,_), (_,_)))) = (id, True)
 
-      hledgmarks = em ++ (fmap fmapEdges $ filter filterEdges $ out lc tid ++ inn lc tid)
+      hledgmarks = em ++ (fmap fmapEdges $ filter filterEdges $ L.concat $ fmap ( out lc) tids ++ fmap (inn lc) tids)
   in (hlnodmarks, hledgmarks)
 
 
-hilightEdge :: LocGraph -> Markers -> EdgeId -> Markers --подсветить ребро, и ноды, которые оно связывает
-hilightEdge lc (nm, em) eid = 
-    let hledgmarks = (eid, True) : filter (\(id, hl) -> and [id /= eid, hl]) em --маркера подсветки ребер
-        edge = head $ filter (\(_,_,(id, _)) -> id == eid ) $ (labEdges lc)
-        n1 = (\(n1,_,_) -> n1) edge 
-        n2 = (\(_,n2,_) -> n2) edge
-    in  hilightNode lc  ( hilightNode lc (nm, hledgmarks) n1) n2 
+hilightEdges :: LocGraph -> Markers -> [EdgeId] -> Markers --подсветить ребрa, и ноды, которые они связывают
+hilightEdges lc (nm, em) eids = 
+    let hledgmarks = (zip eids $ repeat True) ++  filter (\(eid, _) -> not $ eid `elem` eids) em --маркера подсветки ребер
+        --забрать ребра, схлопнуть ребра в список айди, нод соединяемых ребрами, удалить дубликаты 
+        nodes = L.nub $ L.concat $ fmap (\(n1,n2,_) -> [n1,n2])  $ filter (\(_,_,(id, _)) -> id `elem` eids) $ (labEdges lc)
+
+    in  hilightNodes lc (nm, hledgmarks) nodes
 
 
-unlightEdge :: LocGraph -> Markers -> EdgeId -> Markers  --снять подсветку с ребра, с нод подсветку не снимать
-unlightEdge lc (nm, em) eid =
-    let hledgmarks = (eid, False) : filter (\(id, hl) -> and [id /= eid, hl]) em --маркера подсветки ребер
+unlightEdges :: LocGraph -> Markers -> [EdgeId] -> Markers  --снять подсветку с ребер, с нод подсветку не снимать
+unlightEdges lc (nm, em) eids =
+    let hledgmarks = (zip eids $ repeat False) ++ filter (\(eid, _) -> not $ eid `elem` eids) em --маркера подсветки ребер
         
     in  (nm, hledgmarks )
 
               
-unlightNode :: LocGraph -> Markers -> TableId -> Markers  --снять подсветку с ноды и всех его ребер
-unlightNode lc (nm, em) tid   = 
-    let hlnodmarks = (tid, False) : filter (\(id, hl) -> and [id /= tid, hl]) nm --маркера подсветки нод
-        fmapEdges (_,_,(id, RelationInGraph ((_,_), (_,_)))) = (id, False)
-        unlightEdges = (fmap fmapEdges $ out lc tid ++ inn lc tid)
-        hledgmarks = filter (\(e,m) -> not $ e `elem` (fmap (\(e, _) -> e ) unlightEdges)  ) em ++ unlightEdges
-  in (hlnodmarks, hledgmarks)
+unlightNodes :: LocGraph -> Markers -> [TableId] -> Markers  --снять подсветку с нод и всех их ребер
+unlightNodes lc (nm, em) tids  =
+    
+    let hledgmarks = snd
+                     $ unlightEdges lc (nm, em)     -- отсветить ноды по id
+                     $ fmap (\(_,_,(eid,_)) -> eid) -- забрать id нод
+                     $ filter (\(n1, n2, _) -> or [n1 `elem` tids, n2 `elem` tids]) -- которые вяжут какие нибудь таблицы из переданных
+                     $ labEdges lc --все ребра локального графа
+        hlnodmarks = (zip tids $ repeat False) ++ filter (\(tid, _) -> not $ tid `elem` tids) nm --маркера подсветки нод
+
+    in (hlnodmarks, hledgmarks)
 
 
-type NewLocGraph = LocGraph
-updateMarkers :: LocGraph -> Markers -> NewLocGraph -> Markers
-updateMarkers lc mrks nlc = undefined
+
 
 
 
