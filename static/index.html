@@ -3,16 +3,57 @@
     <head>
         <meta charset="utf-8">
         <title>Для начала загрузи файл</title>
-        <script type="text/javascript" src="static/js/jquery-2.1.4.min.js"></script>
-        <script type="text/javascript" src="static/js/d3.min.js"></script>
-        <script type="text/javascript" src="static/js/jsonlite.js"></script>
-        <script type="text/javascript" src="static/js/app.js"></script>
+        <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/graph.css">
+        <script type="text/javascript" src="/static/js/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript" src="/static/js/d3.min.js"></script>
+        <script type="text/javascript" src="/static/js/jsonlite.js"></script>
+        <script type="text/javascript" src="/static/js/app.js"></script>
     </head>
-<body>
-    <form action="upload" method="post" enctype="multipart/form-data">
-    Select file to upload:
-        <input type="file" name="fileToUpload" id="fileToUpload">
-        <input type="submit" value="Upload CSV" name="submit">
-    </form>
-</body>
+    <body>
+        <div class="left-form">
+            <div class="status">Choose file</div>
+            <input type="file" name="fileToUpload" id="fileToUpload">
+            <button id="upload">Upload</button>
+            <br>
+            <div class="header" style="margin: 30px auto 10px;">Operations</div>
+            <div class="title">Tables</div>
+            <input id="requested-table" type="text" value="BASE_POST">
+            <button id="ask">Ask for linked nodes</button>
+            <div class="hr"></div>
+            <button id="update">Raw canvas</button>
+            <button id="deserialize">Deserialize</button>
+            <button id="visualize">VISUALIZE</button>
+            <div class="hr"></div>
+            <div class="title">Tables</div>
+            <input id="table-name" type="text" value="">
+            <button id="hitable">Highlight</button>
+            <button id="unhitable">Unhighlight</button>
+            <br>
+            <div class="hr2"></div>
+            <div class="title">Links</div>
+            <input id="link-name" type="text" value="">
+            <button id="hilink">Highlight</button>
+            <button id="unhilink">Unhighlight</button>
+            <div class="hr"></div>
+
+            <div class="output" style="font-family: Monaco, monospace; font-size: 10px;">Nothing</div>
+
+        </div>
+        <div class="right-form">
+            <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g id="controls" visibility="hidden">
+              <g visibility="hidden">
+                <rect x="0" y="0.55" opacity="0.6" fill="#FFFFFF" stroke="#231F20" stroke-miterlimit="10" width="192" height="22"/>
+                <text transform="matrix(1 0 0 1 4.5066 15.343)"  >Debug level:</text>
+                <g id="slider-debug-level">
+                  <line id="slider-x-debug-level" fill="none" stroke="#939598" stroke-width="2" stroke-linecap="round" stroke-miterlimit="10" x1="73.5" y1="11.05" x2="160.5" y2="11.05"/>
+                  <rect id="sliderpos-debug-level" x="77" y="3.55" fill="#58595B" stroke="#231F20" stroke-linecap="round" stroke-miterlimit="10" width="4" height="15"/>
+                  <text id="sliderval-debug-level" transform="matrix(1 0 0 1 164.6638 15.343)"  >?????</text>
+                </g>
+              </g>
+            </svg>
+            <script type="text/javascript" src="/static/js/d3init.js"></script>
+        </div>
+    </body>
 </html>
