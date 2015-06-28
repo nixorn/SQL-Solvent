@@ -1,3 +1,8 @@
+function updateCanvas(){
+    var canvas = deserializeHaskell(getCanvas());
+    $(".output").html( extractTables(canvas) +  "-------<br>" + extractLinks(canvas) );
+    updateHighlights(canvas);
+}
 function getCanvas(){
     var toReturn = null;
     $.ajax({
@@ -47,7 +52,9 @@ function updateHighlights(array){
 }
 // action = {on|off}, what = {tables,relations}, items = 241,843
 function manageHighlights(action,what,items){
-    if (action == 'on') { var url = 'hilight'; } else { var url = 'unlight'; }
+    if (action == 'on') { var url = 'hilight'; }
+    if (action == 'off') { var url = 'unlight'; }
+    if (action == 'delete') { var url = 'delete'; }
     if (what == 'tables') { var data = "[[" + items + "],[]]"; }
     else { var data = "[[],[" + items + "]]"; }
     $.ajax({
@@ -59,8 +66,7 @@ function manageHighlights(action,what,items){
             data: data,
             type: 'post',
             success: function(){
-                var canvas = deserializeHaskell(getCanvas());
-                updateHighlights(canvas);
+                updateCanvas();
             }
     });
 }
@@ -106,9 +112,7 @@ $( document ).ready(function() {
         $(".output").text(getCanvas());
     });
     $('#deserialize').on('click', function(){
-        var canvas = deserializeHaskell(getCanvas());
-        $(".output").html( extractTables(canvas) +  "-------<br>" + extractLinks(canvas) );
-        updateHighlights(canvas);
+        updateCanvas();
     });
     $('#hitable').on('click', function(){
         manageHighlights('on', 'tables', $('#table-name').val());
@@ -121,6 +125,12 @@ $( document ).ready(function() {
     });
     $('#unhilink').on('click', function(){
         manageHighlights('off', 'relations', $('#link-name').val());
+    });
+    $('#deletetable').on('click', function(){
+        manageHighlights('delete', 'tables', $('#table-name').val());
+    });
+    $('#deletelink').on('click', function(){
+        manageHighlights('delete', 'relations', $('#link-name').val());
     });
     $('#visualize').on('click', function(){
         var canvas = deserializeHaskell(getCanvas());

@@ -1,0 +1,38 @@
+hr {
+    height: 1px;
+}
+.status {
+    background-color: #D8FFE8;
+    margin-bottom: 10px;
+}
+.header {
+    background-color: #D8E5FF;
+}
+.status, .header {
+    padding: 5px;
+}
+.highlighted {
+    color: red;
+}
+.left-form {
+    float: left;
+    width: 50%;
+}
+.right-form {
+    float: left;
+    width: 40%;
+}
+#visualize {
+}
+.hr {
+    background-color: #CCCCCC;
+    height: 1px;
+    margin: 10px 0;
+}
+.hr2 {
+    height: 5px;
+}
+.title {
+    display: inline-block;
+    width: 100px;
+}
