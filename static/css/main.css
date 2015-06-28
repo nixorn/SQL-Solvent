@@ -2,25 +2,25 @@ hr {
     height: 1px;
 }
 .status {
-    background-color: #D8FFE8;
-    margin-bottom: 10px;
+    background-color: #e0eaff;
+    height: 100%;
 }
 .header {
     background-color: #D8E5FF;
-}
-.status, .header {
-    padding: 5px;
 }
 .highlighted {
     color: red;
 }
 .left-form {
     float: left;
-    width: 50%;
+    width: 368px;
+    background-color: #ebf1fb;
+    color: #3d3f44;
+    padding: 15px;
 }
 .right-form {
     float: left;
-    width: 40%;
+    width: 800px;
 }
 #visualize {
 }

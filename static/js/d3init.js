@@ -1,5 +1,5 @@
-var width = 650,     // svg width
-    height = 600,     // svg height
+var width = 800,     // svg width
+    height = 800,     // svg height
     dr = 4,      // default point radius
     off = 15,    // cluster hull offset
     expand = {}, // expanded clusters

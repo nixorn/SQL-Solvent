@@ -2,8 +2,9 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Для начала загрузи файл</title>
+        <title>SQL Solvent v0.0.1</title>
         <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/style.css">
         <link rel="stylesheet" type="text/css" href="/static/css/graph.css">
         <script type="text/javascript" src="/static/js/jquery-2.1.4.min.js"></script>
         <script type="text/javascript" src="/static/js/d3.min.js"></script>
@@ -11,30 +12,39 @@
         <script type="text/javascript" src="/static/js/app.js"></script>
     </head>
     <body>
-        <div class="left-form">
+        <div class="real-header">
+            <img src="/static/images/logo.png" style="padding-left: 20px;">
+            <div class="real-title"><b style="color: #ffa722;">SQL</b> Solvent</div>
             <div class="status">Choose file</div>
+        </div>
+
+        <div class="left-form">
+
             <input type="file" name="fileToUpload" id="fileToUpload">
             <button id="upload">Upload</button>
             <br>
-            <div class="header" style="margin: 30px auto 10px;">Operations</div>
+            <div class="header" style="margin: 22px auto 10px;">Operations</div>
             <div class="title">Tables</div>
-            <input id="requested-table" type="text" value="BASE_POST">
+            <input id="requested-table" type="text" value="WM_TICKET">
             <button id="ask">Ask for linked nodes</button>
-            <div class="hr"></div>
+            <!-- <div class="hr"></div> -->
+            <button id="clean">Clean</button>
             <button id="update">Raw canvas</button>
             <button id="deserialize">Deserialize</button>
             <button id="visualize">VISUALIZE</button>
             <div class="hr"></div>
             <div class="title">Tables</div>
             <input id="table-name" type="text" value="">
-            <button id="hitable">Highlight</button>
+            <br>
+            <button id="hitable" style="margin-left: 106px;">Highlight</button>
             <button id="unhitable">Unhighlight</button>
             <button id="deletetable">Delete</button>
             <br>
             <div class="hr2"></div>
             <div class="title">Links</div>
             <input id="link-name" type="text" value="">
-            <button id="hilink">Highlight</button>
+            <br>
+            <button id="hilink" style="margin-left: 106px;">Highlight</button>
             <button id="unhilink">Unhighlight</button>
             <button id="deletelink">Delete</button>
             <div class="hr"></div>

@@ -1,13 +1,14 @@
 svg {
   /*border: 1px solid #ccc;*/
+  /*background-color: #222;*/
 }
 body {
   /*font: 10px sans-serif;*/
 }
 circle.node {
   fill: lightsteelblue;
-  stroke: #555;
-  stroke-width: 3px;
+  stroke: #333333;
+  stroke-width: 2px;
 }
 circle.leaf {
   stroke: #fff;
