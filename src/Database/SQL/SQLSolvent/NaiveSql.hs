@@ -84,30 +84,21 @@ instance Show Select where
             -- ++            (show whr)
 
 renderNaiveSql :: LocGraph -> Markers -> String --добавление кучки новых нод и ребер ессесно
-renderNaiveSql lc (nm, em) = undefined {-
-    let 
-        activeEdges      = filter (\(_, mark) -> mark) em 
-        activeNodes      = filter (\(_, mark) -> mark) nm 
-        edgesForRender   = filter (\(_,_,(eid,_)) -> eid `elem` activeEdges) $ labEdges lc
-        nodesForRender   = filter (\(tid,_)       -> tid `elem` activeNodes) $ labNodes lc
-        headnode         = snd . maximum $ zip (fmap (deg lc) nodesForRender) nodesForRender
-        nodesExceptHead  = filter (headnode /= ) nodesForRender
-        clauses          = fmap (\(_,_,(_,((t1,f1),(t2,f2)))) ->  Clause ((t1, f1), Equ, (t2, f2))) edgesForRender) --ребра в клозы 
-        joins            = fmap (\(_, n) -> LeftJoin (tName n) []) nodesForRender
-                  
+renderNaiveSql lc (nm, em) = undefined 
+    {- let
+        nodesinmarkers  = filter (\(tid,_) -> tid `elem` $ fmap (\(tidd, _) -> tidd) nm ) (labNodes lc)
+        edgesinmarkers  = filter (\(eid,_) -> eid `elem` $ fmap (\(_, _, (eidd, _)) -> eidd) em ) (laEdges lc)
+        querygraph      = mkGraph (nodesinmarkers) (edgesinmarkers)
+        headRankTable   = snd $ maximum $ zip ( (fmap (deg querygraph) $ nodes querygraph)  $ labNodes querygraph
+        path = lbft
         
-        --все подсвеченные клаусы для джоинов. каждому джоину(таблице, соответствуют все клаусы с его участием)
-        sortclaus        = --спуск клаусов в область, где клаус касается джойновой таблицы и при этом все таблицы клауса уже встречаются в списке выше + удаление лишних
-        
-        --join table [clause] | (t1 clause) = table
-                       
     in show $ Select (SelectList  ) (From  (tName $ snd headnode))
            [LeftJoin t
             [Clause ((), Equ, ()) | ]
            | ]
-           --Where 
+           --Where -}
 
--}
+
 
 --data InsertInto = InsertInto TableName [FieldName] Select
 --data Update     = Update TableName [FieldName] 

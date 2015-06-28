@@ -56,7 +56,8 @@ site e_ment =
     dir "canvas"     (renderRequest    e_ment)                  <|>
     dir "unlight"    (handleUnlight    e_ment)                  <|>
     dir "hilight"    (handleHilight    e_ment)                  <|>
-    dir "delete"     (handleDelete     e_ment)
+    dir "delete"     (handleDelete     e_ment)                  <|>
+    dir "clean"      (cleanLocalState  e_ment)
 --    dir "rendersql"  (renderSql        e_ment)
 
    
@@ -207,3 +208,9 @@ handleUnlight e_ment =  do
 
 
 
+cleanLocalState :: MonadSnap m => MVar GraphEnv -> m ()
+cleanLocalState e_ment = (liftIO $ do
+                       e <- takeMVar e_ment
+                       
+                       putMVar e_ment $  e {markers      = ([],[]) 
+                                           ,localGraph   = buildEmptyTableGraph}) >> return ()
