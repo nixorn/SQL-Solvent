@@ -1,3 +1,64 @@
+function visualize(){
+    var canvas = deserializeHaskell(getCanvas());
+
+    var newdata = {};
+    var nodes = [];
+    var links = [];
+    canvas[1].forEach(function(item,i){
+        links[i] = {};
+        links[i]['id'] = item[2][0];
+        links[i]['source'] = {};
+        links[i]['source']['name'] = item[2][1][0];
+        links[i]['source']['group'] = item[0];
+        nodes.push(links[i]['source']);
+        links[i]['target'] = {};
+        links[i]['target']['name'] = item[2][1][1];
+        links[i]['target']['group'] = item[1];
+        nodes.push(links[i]['target']);
+        links[i]['value'] = 1;
+    });
+    var newLinks = [];
+    var newNodes = [];
+    canvas[0].forEach(function(item,i){
+        // console.log(i);
+        // console.log(item[0]);
+
+        var tableId = item[0];
+        var tableRoot = {};
+        tableRoot['name'] = 'tableCenter' + tableId;
+        tableRoot['group'] = tableId;
+        newNodes.push(tableRoot);
+        // console.log(newNodes);
+        links.forEach(function(item){
+            if (item['source']['group'] == tableId) {
+                var rootLink = {};
+                rootLink['source'] = tableRoot;
+                rootLink['target'] = item['source'];
+                rootLink['value'] = 1;
+                newLinks.push(rootLink);
+            }
+            if (item['target']['group'] == tableId) {
+                var rootLink = {};
+                rootLink['source'] = tableRoot;
+                rootLink['target'] = item['target'];
+                rootLink['value'] = 1;
+                newLinks.push(rootLink);
+            }
+        });
+    });
+    newNodes.forEach(function(item){
+        nodes.push(item);
+    });
+    newLinks.forEach(function(item){
+        links.push(item);
+    });
+
+    newdata['nodes'] = nodes;
+    newdata['links'] = links;
+    data = newdata;
+    data.helpers = {left: {}, right: {}};
+    init();
+}
 function updateCanvas(){
     var canvas = deserializeHaskell(getCanvas());
     $(".output").html( extractTables(canvas) +  "-------<br>" + extractLinks(canvas) );
@@ -16,7 +77,21 @@ function getCanvas(){
     });
     return toReturn;
 }
-
+function cleanCanvas(){
+    $.ajax({
+            url: 'clean',
+            dataType: 'text',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: '',
+            type: 'post',
+            success: function(){
+                updateCanvas();
+                visualize();
+            }
+    });
+}
 function deserializeHaskell(serializedData){
     return jsonlite.parse(serializedData.replace(/ /g,"&nbsp;"));
 }
@@ -67,6 +142,7 @@ function manageHighlights(action,what,items){
             type: 'post',
             success: function(){
                 updateCanvas();
+                visualize();
             }
     });
 }
@@ -85,7 +161,7 @@ $( document ).ready(function() {
                     data: form_data,
                     type: 'post',
                     success: function(){
-                        $('.status').text('DONE!');
+                        $('.status').text('Parsing done.');
                     }
             });
             $('.status').text('Parsing file... Please wait.');
@@ -105,6 +181,7 @@ $( document ).ready(function() {
                 type: 'post',
                 success: function(){
                     updateCanvas();
+                    visualize();
                 }
         });
     });
@@ -132,29 +209,10 @@ $( document ).ready(function() {
     $('#deletelink').on('click', function(){
         manageHighlights('delete', 'relations', $('#link-name').val());
     });
+    $('#clean').on('click', function(){
+        cleanCanvas();
+    });
     $('#visualize').on('click', function(){
-        var canvas = deserializeHaskell(getCanvas());
-
-        var newdata = {};
-        var nodes = [];
-        var links = [];
-        canvas[1].forEach(function(item,i){
-            links[i] = {};
-            links[i]['id'] = item[2][0];
-            links[i]['source'] = {};
-            links[i]['source']['name'] = item[2][1][0];
-            links[i]['source']['group'] = item[0];
-            nodes.push(links[i]['source']);
-            links[i]['target'] = {};
-            links[i]['target']['name'] = item[2][1][1];
-            links[i]['target']['group'] = item[1];
-            nodes.push(links[i]['target']);
-            links[i]['value'] = 1;
-        });
-        newdata['nodes'] = nodes;
-        newdata['links'] = links;
-        data = newdata;
-        data.helpers = {left: {}, right: {}};
-        init();
+        visualize();
     })
 });
