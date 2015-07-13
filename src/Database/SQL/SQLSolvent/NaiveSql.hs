@@ -1,3 +1,4 @@
+
 {- Цель - сделать генерацию минимального подмножества sql, через которое можно выразить все операции-}
 
 module Database.SQL.SQLSolvent.NaiveSql (
@@ -82,17 +83,17 @@ instance Show Select where
             (show from) ++
             (L.concat $ fmap show joins)
             -- ++            (show whr)
-
-renderNaiveSql :: LocGraph -> Markers -> String --добавление кучки новых нод и ребер ессесно
+{-
+renderNaiveSql :: LocGraph -> Markers -> String 
 renderNaiveSql lc (nm, em) = undefined 
-    {- let
+    let
         nodesinmarkers  = filter (\(tid,_) -> tid `elem` $ fmap (\(tidd, _) -> tidd) nm ) (labNodes lc)
         edgesinmarkers  = filter (\(eid,_) -> eid `elem` $ fmap (\(_, _, (eidd, _)) -> eidd) em ) (laEdges lc)
         querygraph      = mkGraph (nodesinmarkers) (edgesinmarkers)
         headRankTable   = snd $ maximum $ zip ( (fmap (deg querygraph) $ nodes querygraph)  $ labNodes querygraph
         path = lbft
         
-    in show $ Select (SelectList  ) (From  (tName $ snd headnode))
+    in  show $ Select (SelectList  ) (From  (tName $ snd headnode))
            [LeftJoin t
             [Clause ((), Equ, ()) | ]
            | ]

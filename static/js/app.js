@@ -98,14 +98,14 @@ function deserializeHaskell(serializedData){
 function extractTables(array){
     var toReturn = "";
     array[0].forEach(function(item) {
-        toReturn += "<div class='table' id='table" + item[0] + "'>" + item[0] + " " + item[1] + " " + item[2] + "</div>";
+        toReturn += "<div class='action b' data-action='on' data-what='tables' data-id='" + item[0] + "'>[+]</div>" + "<div class='action b' data-action='off' data-what='tables' data-id='" + item[0] + "'>[-]</div>" + "<div class='action' data-action='delete' data-what='tables' data-id='" + item[0] + "'>[X]</div>" + "<div class='table' id='table" + item[0] + "'>" + item[0] + " " + item[1] + " " + item[2] + "</div><br>";
     });
     return toReturn;
 }
 function extractLinks(array){
     var toReturn = "";
     array[1].forEach(function(item) {
-        toReturn += "<div class='link' id='link" + item[2][0] + "'>" + item[2][0] + " " + item[0] + ":" + item[2][1][0] + "->" + item[1] + ":" + item[2][1][1] + "</div>";
+        toReturn += "<div class='action b' data-action='on' data-what='relations' data-id='" + item[0] + "'>[+]</div>" + "<div class='action b' data-action='off' data-what='relations' data-id='" + item[0] + "'>[-]</div>" + "<div class='action' data-action='delete' data-what='relations' data-id='" + item[0] + "'>[X]</div>" + "<div class='link' id='link" + item[2][0] + "'>" + item[2][0] + " " + item[0] + ":" + item[2][1][0] + "->" + item[1] + ":" + item[2][1][1] + "</div>";
     });
     return toReturn;
 }
@@ -214,5 +214,8 @@ $( document ).ready(function() {
     });
     $('#visualize').on('click', function(){
         visualize();
-    })
+    });
+    $('.output').on('click','.action', function(){
+        manageHighlights($(this).data('action'), $(this).data('what'), $(this).data('id'));
+    });
 });

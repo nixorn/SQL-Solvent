@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, FlexibleContexts #-}
 module Database.SQL.SQLSolvent.Server (
   startGui
                                      ) where
@@ -20,8 +20,10 @@ import           Snap.Http.Server
 import           Control.Concurrent
 import           Network.CGI (liftIO)
 
+import           Text.JSON
+
 import Data.Graph.Inductive as G
-import qualified Data.Text as T
+import qualified Data.Text  as T
 import           Data.Text.Encoding (encodeUtf8)
 
 
@@ -116,9 +118,9 @@ parseAddResponse e_ment  = do
         
 --тут мы строим тело респонса. глобальную переменную не меняем. 
 
---TODO: доделать нафиг нормально. Либо через инстанс show либо библиотекой, либо заставить интерфейсников
-renderRequest :: MonadSnap m => MVar GraphEnv -> m ()
-renderRequest e_ment =
+--TODO: доделать нафиг нормально. Либо через инстанс show либо библиотекой
+renderRequest' :: MonadSnap m => MVar GraphEnv -> m ()
+renderRequest' e_ment =
     (liftIO $ (do
      e <- takeMVar e_ment
      putMVar e_ment e 
@@ -137,7 +139,8 @@ renderRequest e_ment =
          renderMark (nodes, edges) = "[" 
               ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") nodes) ++ "]" ++ "," 
               ++ "[" ++ (foldl1 (\a b -> a ++ "," ++ b) $ fmap (\(a, b) -> "[" ++ show a ++ "," ++ show b ++ "]") edges) ++ "]" ++ "]"
-        
+
+         --render :: [a] -> [a] 
          render [] = []      
          render list = foldl1 (\a b -> a ++ "," ++ b)  list
         
@@ -145,8 +148,33 @@ renderRequest e_ment =
                "[" ++ (render $ fmap renderNode $ labNodes lc_graph) ++ "]" ++ "," ++
                "[" ++ (render $ fmap renderEdge $ labEdges lc_graph) ++ "]" ++ "," ++ 
                "[" ++ renderMark mrkrs ++ "]" 
-                ++ "]"))  >>= writeText 
+                ++ "]"))  >>= writeText
+               
+renderRequest :: MonadSnap m => MVar GraphEnv -> m ()
+renderRequest e_ment =
+    (liftIO $ (do
+     e <- takeMVar e_ment
+     putMVar e_ment e 
+     let lc_graph = localGraph e
+         mrkrs    = markers e
 
+                     
+         renderNode (id, Table name descr _) =  toJSObject [(show id, toJSObject [("name", T.unpack name), ("description", T.unpack descr)])]
+
+         renderEdge (from,to, (id, RelationInGraph ((_,fromName), (_,toName)))) = 
+             toJSObject [(show id, toJSObject [("from", show from),("to", show to),("fromName", show fromName),("toName", show toName)])]  
+        
+         
+                            
+
+     return . T.pack . encode $ toJSObject [("root",
+                                            toJSObject [("nodes", fmap renderNode $ labNodes lc_graph),
+                                                        ("edges", fmap renderEdge $ labEdges lc_graph),
+                                                        ("marks", [toJSObject [("nodes", fst $ mrkrs), ("edges", snd $ mrkrs)]])
+                                                       ]
+                                            )]
+               ))  >>= writeText
+               
 handleHilight :: MonadSnap m => MVar GraphEnv -> m ()
 handleHilight e_ment =  do
     body <- readRequestBody 100000
@@ -214,3 +242,7 @@ cleanLocalState e_ment = (liftIO $ do
                        
                        putMVar e_ment $  e {markers      = ([],[]) 
                                            ,localGraph   = buildEmptyTableGraph}) >> return ()
+
+
+
+                                   

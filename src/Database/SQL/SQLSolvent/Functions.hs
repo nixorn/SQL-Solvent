@@ -39,7 +39,7 @@ lineEnd =
     
 unquotedField :: Parser T.Text
 unquotedField =
-    takeWhile (`notElem` ";\n\r\"")
+    takeWhile (`notElem` [';', '\n', '\r', '"'])
     <?> "unquoted field"
     
 insideQuotes :: Parser T.Text

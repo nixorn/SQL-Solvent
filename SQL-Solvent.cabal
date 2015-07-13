@@ -22,6 +22,8 @@ executable solvent
               , snap-core
               , cgi
               , strict
+              , json
+
   default-language:    Haskell2010
   
 library
@@ -47,6 +49,7 @@ library
               , snap-core
               , cgi
               , strict
+              , json
 
   default-language:    Haskell2010
 

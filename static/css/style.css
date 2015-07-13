@@ -1,0 +1,85 @@
+body, html {
+    margin: 0;
+    background-color: white;
+    font-family: Roboto;
+}
+.real-header {
+    box-shadow: 0 0 10px rgba(0,0,0,0.25);
+    height: 71px;
+    background-color: white;
+    z-index: 2;
+    position: relative;
+}
+.real-header>div {
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: padding-box;
+}
+.real-title {
+    padding-top: 15px;
+    font-size: 32px;
+    letter-spacing: -0.07em;
+    color: #444;
+    padding-right: 20px;
+}
+.status {
+    padding-top: 15px;
+    font-size: 32px;
+    letter-spacing: -0.07em;
+    color: #444;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+.status::before {
+    font-weight: 200;
+    content: "Status: "
+}
+button {
+    background-color: white;
+    border: 0;
+    border-radius: 4px;
+    color: black;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+#visualize {
+    width: 100%;
+}
+input[type="text"] {
+    background-color: white;
+    border: 2px solid #c6d4eb;
+    border-radius: 3px;
+    padding: 4px;
+    font-family: 'Roboto';
+    margin-bottom: 5px;
+    width: 251px;
+}
+input[type="text"]:focus {
+    border: 2px solid #7da4e3;
+}
+.action {
+    display: inline-block;
+    vertical-align: top;
+    cursor: pointer;
+    /*padding-right: 5px;*/
+}
+.action:hover {
+    color: red;
+}
+.action.b:hover {
+    color: blue;
+}
+.table {
+    display: inline-block;
+    width: 300px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-left: 5px;
+}
+.link {
+    display: inline-block;
+    width: 300px;
+    overflow: hidden;
+    white-space: nowrap;
+    padding-left: 5px;
+}
